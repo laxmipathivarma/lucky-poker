@@ -182,7 +182,7 @@ function authView(){const busy=st.busy,m=st.mode,s2=st.step;
   else body=`<p class="hint">${m==='signup'?'Create a password for <b>'+esc(st.email)+'</b>.':'Choose a new password for <b>'+esc(st.email)+'</b>.'} Use at least 8 characters.</p>
     <form id="fPass" style="display:flex;flex-direction:column;gap:10px">${pwField('np1','New password','new-password')}${pwField('np2','Re-enter password','new-password')}
     <div class="row"><button class="btn pri" type="submit" ${busy?'disabled':''}>${busy?'Saving…':m==='signup'?'Create account':'Save new password'}</button></div></form>`;
-  return `<h1>${title}</h1>${bar}${body}<div class="row" style="border-top:1px solid var(--line);padding-top:10px"><button class="btn ghost" type="button" data-a="mode" data-m="login">Back to sign in</button></div>`}
+  return `<h1>${title}</h1>${bar}${body}<div class="row" style="border-top:1px solid var(--line);padding-top:10px"><a class="btn ghost" href="./">Back to sign in</a></div>`}
 function profileForm(p){return `<form id="fProf" style="display:flex;flex-direction:column;gap:10px"><label class="f">Your name<input id="pn" autocomplete="name" value="${esc(p&&p.name||'')}" required></label><label class="f">Mobile number<input id="pp" type="tel" inputmode="tel" autocomplete="tel" placeholder="10-digit mobile" value="${esc(p&&p.phone?p.phone.replace(/^91/,''):'')}" required></label><div class="row"><button class="btn pri" type="submit" ${st.busy?'disabled':''}>${st.busy?'Saving…':'Save profile'}</button></div></form>`}
 
 async function load(){try{const j=await api({action:'pMe'});st.me=j.me;st.msg=''}catch(e){if(e.error==='signed_out'){st.token=null;st.me=null;save()}st.msg=errText(e);st.err=true}render()}
@@ -192,7 +192,7 @@ document.addEventListener('submit',async e=>{e.preventDefault();const f=e.target
     else if(f.id==='fEmail'){st.email=$('#em').value.trim().toLowerCase();await api({action:'pStart',email:st.email,purpose:st.mode});st.step='code';save()}
     else if(f.id==='fCode'){const j=await api({action:'pVerify',email:st.email,code:$('#code').value,purpose:st.mode});st.setup=j.setup;st.step='pass'}
     else if(f.id==='fPass'){const a1=$('#np1').value,a2=$('#np2').value;if(a1.length<8)throw{error:'weak_password'};if(a1!==a2){st.busy=false;st.msg='The two passwords do not match.';st.err=true;render();return}
-      await api({action:'pSetPassword',setup:st.setup,password:a1});const was=st.mode;st.mode='login';st.step='email';st.setup=null;st.msg=was==='signup'?'Account created. Sign in with your email and new password.':'Password changed. Sign in with your new password.';st.err=false}
+      await api({action:'pSetPassword',setup:st.setup,password:a1});const was=st.mode;st.mode='login';st.step='email';st.setup=null;st.msg=was==='signup'?'Account created. Taking you to sign in…':'Password changed. Taking you to sign in…';st.err=false;st.busy=false;try{localStorage.setItem('lp.who','player')}catch(e){}render();setTimeout(()=>{location.href='./'},1800);return}
     else if(f.id==='fProf'){const j=await api({action:'pProfile',name:$('#pn').value.trim(),phone:$('#pp').value});st.me=j.me;st.editing=false;st.msg='Profile saved.';st.err=false}
   }catch(err){st.msg=errText(err);st.err=true;if(err.error==='signed_out'){st.token=null;save()}if(err.error==='exists'){st.mode='login'}}
   st.busy=false;render()});
@@ -203,9 +203,11 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-a]')
   if(a==='resend'){st.busy=true;render();try{await api({action:'pStart',email:st.email,purpose:st.mode});st.msg='A new code is on its way.';st.err=false}catch(err){st.msg=errText(err);st.err=true}st.busy=false;render()}
   if(a==='refresh'){st.msg='';await load()}
   if(a==='edit'||a==='edit2'){st.editing=!st.editing;render()}
-  if(a==='out'){try{await api({action:'pSignOut'})}catch(err){}st.token=null;st.me=null;st.step='email';st.msg='';save();render()}});
+  if(a==='out'){try{await api({action:'pSignOut'})}catch(err){}st.token=null;st.me=null;st.step='email';st.msg='';save();location.href='./'}});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&st.token)load()});
 $('#logo').innerHTML=fanArt('m',false,'mark')+ribbonWord('r');
+if(!st.token&&!/#(signup|reset)/.test(location.hash)){location.replace('./');}
+if(/#(signup|reset)/.test(location.hash)&&!st.token){st.mode=location.hash.slice(1);st.step='email';history.replaceState(null,'',location.pathname)}
 render();if(st.token&&API)load();
 })();
 </script>
