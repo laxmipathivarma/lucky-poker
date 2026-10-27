@@ -73,6 +73,14 @@ input:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(-
 .tag{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-radius:20px;padding:3px 9px;background:var(--sunk);color:var(--muted)}
 .tag.ok{background:var(--ok-bg);color:var(--up)}
 .tag.due{background:var(--warn-bg);color:var(--warn)}
+.pw{display:flex;gap:6px;align-items:stretch}.pw input{flex:1}
+.eye{border:1px solid var(--line);background:var(--sunk);border-radius:10px;padding:0 12px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;text-transform:none;letter-spacing:0}
+.codein{font-size:28px!important;letter-spacing:.5em;text-align:center;font-weight:700!important;max-width:220px}
+.steps{list-style:none;margin:0;padding:0;display:flex;gap:6px}
+.steps li{flex:1;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--muted);border-bottom:3px solid var(--line);padding-bottom:6px}
+.steps li span{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:var(--sunk);font-size:11px}
+.steps li.on{color:var(--ink);border-color:var(--accent)}.steps li.on span{background:var(--accent);color:var(--accent-ink)}
+.steps li.done{color:var(--up);border-color:var(--up)}.steps li.done span{background:var(--up);color:#fff}
 .hero{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;color:var(--cream);padding-block:6px}
 .hero svg{width:min(260px,70%);height:auto}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -115,11 +123,11 @@ function ribbonWord(p){return `<svg class="ribbon" viewBox="0 0 300 80" role="im
 const API=window.LP_API;const TK='luckypoker.player.v1';
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let st={token:null,email:'',me:null,step:'email',busy:false,msg:'',err:false};
+let st={token:null,email:'',me:null,mode:'login',step:'email',setup:null,busy:false,msg:'',err:false};
 try{const v=JSON.parse(localStorage.getItem(TK)||'null');if(v){st.token=v.token;st.email=v.email||''}}catch(e){}
 const save=()=>{try{localStorage.setItem(TK,JSON.stringify({token:st.token,email:st.email}))}catch(e){}};
 async function api(body){const r=await fetch(API,{method:'POST',body:JSON.stringify(Object.assign({token:st.token},body)),redirect:'follow'});const j=await r.json();if(j.error)throw j;return j}
-const errText=e=>({bad_email:'Enter a valid email address.',too_many:'Too many codes asked for. Please wait an hour and try again.',code_expired:'That code has expired. Ask for a new one.',bad_code:'That code is not right. Check the email and try again.',bad_phone:'Enter your 10-digit mobile number.',signed_out:'Please sign in again.'})[e&&e.error]||'Something went wrong. Check your connection and try again.';
+const errText=e=>({bad_email:'Enter a valid email address.',too_many:'Too many tries. Please wait a while and try again.',code_expired:'That code has expired. Ask for a new one.',bad_code:'That code is not right. Check the email and try again.',bad_phone:'Enter your 10-digit mobile number.',signed_out:'Please sign in again.',exists:'An account with this email already exists. Sign in, or use Forgot password.',no_account:'No account uses this email yet. Create an account first.',weak_password:'Use at least 8 characters for your password.',bad_login:'Email or password is not right.'})[e&&e.error]||'Something went wrong. Check your connection and try again.';
 const money=(n,c)=>(n<0?'−':'')+(c||'₹')+Math.abs(Math.round(n*100)/100).toLocaleString('en-IN',{maximumFractionDigits:2});
 const sgn=(n,c)=>(n>0.004?'+':'')+money(n,c);
 const cls=n=>n>0.004?'up':n<-0.004?'down':'mut';
@@ -132,13 +140,7 @@ const msg=()=>st.msg?`<div class="msg ${st.err?'err':'ok'}">${esc(st.msg)}</div>
 function render(){$('#who').textContent=st.token&&st.email?st.email:'';const a=$('#app');
   if(!API){a.innerHTML=`<section class="panel"><p class="hint">Player sign-in is being set up. Please check back soon.</p></section>`;return}
   if(!st.token){a.innerHTML=`<section class="hero">${fanArt('h',true,'')}<p style="margin:0;color:#e8e0c8">Your games, tables and invites from Lucky Poker.</p></section>
-  <section class="panel"><h1>Sign in</h1>
-  ${st.step==='email'?`<p class="hint">Enter your email and we'll send you a 4-digit sign-in code.</p>
-  <form id="fEmail" class="row"><label class="f" style="flex:1;min-width:220px">Email<input id="em" type="email" inputmode="email" autocomplete="email" value="${esc(st.email)}" required></label><button class="btn pri" type="submit" ${st.busy?'disabled':''}>${st.busy?'Sending…':'Send code'}</button></form>`
-  :`<p class="hint">We sent a code to <b>${esc(st.email)}</b>. It works for 10 minutes. Check spam if you can't find it.</p>
-  <form id="fCode" class="row"><label class="f" style="flex:1;min-width:160px">Code<input id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="4" required></label><button class="btn pri" type="submit" ${st.busy?'disabled':''}>${st.busy?'Checking…':'Sign in'}</button></form>
-  <div class="row"><button class="btn ghost" type="button" data-a="back">Use a different email</button><button class="btn ghost" type="button" data-a="resend">Send a new code</button></div>`}
-  ${msg()}</section>`;return}
+  <section class="panel">${authView()}${msg()}</section>`;return}
   const me=st.me;
   if(!me){a.innerHTML=`<section class="panel"><p class="hint">Loading your games…</p>${msg()}</section>`;return}
   const p=me.profile;
@@ -162,20 +164,43 @@ function render(){$('#who').textContent=st.token&&st.email?st.email:'';const a=$
     <div class="row">${tag}</div></div>`}).join(''):'<p class="hint">No games yet.</p>'}</section>
   <div class="row"><button class="btn ghost" type="button" data-a="edit2" style="color:var(--cream)">Edit profile</button><button class="btn ghost" type="button" data-a="out" style="color:var(--cream)">Sign out</button></div>
   ${st.editing?`<section class="panel">${profileForm(p)}<p class="hint">Changing your number sends it to the host to confirm again.</p>${msg()}</section>`:msg()}`}
+const pwField=(id,label,ac)=>`<label class="f">${label}<span class="pw"><input id="${id}" type="password" autocomplete="${ac}" minlength="8" required><button type="button" class="eye" data-a="eye" data-for="${id}" aria-label="Show password">Show</button></span></label>`;
+function authView(){const busy=st.busy,m=st.mode,s2=st.step;
+  if(m==='login')return `<h1>Sign in</h1><p class="hint">Sign in with the email and password you created.</p>
+    <form id="fLogin" style="display:flex;flex-direction:column;gap:10px"><label class="f">Email<input id="em" type="email" inputmode="email" autocomplete="email" value="${esc(st.email)}" required></label>${pwField('pw','Password','current-password')}
+    <div class="row"><button class="btn pri" type="submit" ${busy?'disabled':''}>${busy?'Signing in…':'Sign in'}</button><button class="btn ghost" type="button" data-a="mode" data-m="reset">Forgot password?</button></div></form>
+    <p class="hint" style="border-top:1px solid var(--line);padding-top:12px">New to Lucky Poker? <button class="btn ghost" type="button" data-a="mode" data-m="signup" style="padding-inline:4px;min-height:auto;color:var(--accent)">Create an account</button></p>`;
+  const title=m==='signup'?'Create your account':'Reset your password';
+  const steps=['Email','Code','Password'];const cur=s2==='email'?0:s2==='code'?1:2;
+  const bar=`<ol class="steps">${steps.map((x,i)=>`<li class="${i<cur?'done':i===cur?'on':''}"><span>${i+1}</span>${x}</li>`).join('')}</ol>`;
+  let body;
+  if(s2==='email')body=`<p class="hint">${m==='signup'?'Enter your email. We will send a 4-digit code to confirm it is yours.':'Enter the email you signed up with. We will send a 4-digit code.'}</p>
+    <form id="fEmail" class="row"><label class="f" style="flex:1;min-width:220px">Email<input id="em" type="email" inputmode="email" autocomplete="email" value="${esc(st.email)}" required></label><button class="btn pri" type="submit" ${busy?'disabled':''}>${busy?'Sending…':'Send code'}</button></form>`;
+  else if(s2==='code')body=`<p class="hint">We sent a 4-digit code to <b>${esc(st.email)}</b>. Copy it from the email and enter it here. Check spam if you can't find it.</p>
+    <form id="fCode" class="row"><label class="f" style="flex:1;min-width:160px">4-digit code<input id="code" class="codein" inputmode="numeric" autocomplete="one-time-code" maxlength="4" pattern="[0-9]{4}" required></label><button class="btn pri" type="submit" ${busy?'disabled':''}>${busy?'Checking…':'Continue'}</button></form>
+    <div class="row"><button class="btn ghost" type="button" data-a="resend">Send a new code</button><button class="btn ghost" type="button" data-a="step" data-s="email">Use a different email</button></div>`;
+  else body=`<p class="hint">${m==='signup'?'Create a password for <b>'+esc(st.email)+'</b>.':'Choose a new password for <b>'+esc(st.email)+'</b>.'} Use at least 8 characters.</p>
+    <form id="fPass" style="display:flex;flex-direction:column;gap:10px">${pwField('np1','New password','new-password')}${pwField('np2','Re-enter password','new-password')}
+    <div class="row"><button class="btn pri" type="submit" ${busy?'disabled':''}>${busy?'Saving…':m==='signup'?'Create account':'Save new password'}</button></div></form>`;
+  return `<h1>${title}</h1>${bar}${body}<div class="row" style="border-top:1px solid var(--line);padding-top:10px"><button class="btn ghost" type="button" data-a="mode" data-m="login">Back to sign in</button></div>`}
 function profileForm(p){return `<form id="fProf" style="display:flex;flex-direction:column;gap:10px"><label class="f">Your name<input id="pn" autocomplete="name" value="${esc(p&&p.name||'')}" required></label><label class="f">Mobile number<input id="pp" type="tel" inputmode="tel" autocomplete="tel" placeholder="10-digit mobile" value="${esc(p&&p.phone?p.phone.replace(/^91/,''):'')}" required></label><div class="row"><button class="btn pri" type="submit" ${st.busy?'disabled':''}>${st.busy?'Saving…':'Save profile'}</button></div></form>`}
 
 async function load(){try{const j=await api({action:'pMe'});st.me=j.me;st.msg=''}catch(e){if(e.error==='signed_out'){st.token=null;st.me=null;save()}st.msg=errText(e);st.err=true}render()}
 document.addEventListener('submit',async e=>{e.preventDefault();const f=e.target;if(st.busy)return;st.busy=true;st.msg='';render();
   try{
-    if(f.id==='fEmail'){st.email=$('#em').value.trim().toLowerCase();await api({action:'pStart',email:st.email});st.step='code';st.msg='';save()}
-    else if(f.id==='fCode'){const j=await api({action:'pVerify',email:st.email,code:$('#code').value});st.token=j.token;st.step='email';save();st.busy=false;await load();return}
+    if(f.id==='fLogin'){st.email=$('#em').value.trim().toLowerCase();const j=await api({action:'pLogin',email:st.email,password:$('#pw').value});st.token=j.token;save();st.busy=false;await load();return}
+    else if(f.id==='fEmail'){st.email=$('#em').value.trim().toLowerCase();await api({action:'pStart',email:st.email,purpose:st.mode});st.step='code';save()}
+    else if(f.id==='fCode'){const j=await api({action:'pVerify',email:st.email,code:$('#code').value,purpose:st.mode});st.setup=j.setup;st.step='pass'}
+    else if(f.id==='fPass'){const a1=$('#np1').value,a2=$('#np2').value;if(a1.length<8)throw{error:'weak_password'};if(a1!==a2){st.busy=false;st.msg='The two passwords do not match.';st.err=true;render();return}
+      await api({action:'pSetPassword',setup:st.setup,password:a1});const was=st.mode;st.mode='login';st.step='email';st.setup=null;st.msg=was==='signup'?'Account created. Sign in with your email and new password.':'Password changed. Sign in with your new password.';st.err=false}
     else if(f.id==='fProf'){const j=await api({action:'pProfile',name:$('#pn').value.trim(),phone:$('#pp').value});st.me=j.me;st.editing=false;st.msg='Profile saved.';st.err=false}
-  }catch(err){st.msg=errText(err);st.err=true;if(err.error==='signed_out'){st.token=null;save()}}
+  }catch(err){st.msg=errText(err);st.err=true;if(err.error==='signed_out'){st.token=null;save()}if(err.error==='exists'){st.mode='login'}}
   st.busy=false;render()});
-// keep the typed values when a re-render happens mid-request
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;
-  if(a==='back'){st.step='email';st.msg='';render()}
-  if(a==='resend'){st.busy=true;render();try{await api({action:'pStart',email:st.email});st.msg='A new code is on its way.';st.err=false}catch(err){st.msg=errText(err);st.err=true}st.busy=false;render()}
+  if(a==='mode'){st.mode=b.dataset.m;st.step='email';st.setup=null;st.msg='';render()}
+  if(a==='step'){st.step=b.dataset.s;st.msg='';render()}
+  if(a==='eye'){const i=document.getElementById(b.dataset.for);if(i){const show=i.type==='password';i.type=show?'text':'password';b.textContent=show?'Hide':'Show'}return}
+  if(a==='resend'){st.busy=true;render();try{await api({action:'pStart',email:st.email,purpose:st.mode});st.msg='A new code is on its way.';st.err=false}catch(err){st.msg=errText(err);st.err=true}st.busy=false;render()}
   if(a==='refresh'){st.msg='';await load()}
   if(a==='edit'||a==='edit2'){st.editing=!st.editing;render()}
   if(a==='out'){try{await api({action:'pSignOut'})}catch(err){}st.token=null;st.me=null;st.step='email';st.msg='';save();render()}});

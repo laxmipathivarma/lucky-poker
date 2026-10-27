@@ -127,35 +127,69 @@ function setAdmin_(req) {
 
 function player_(a, req) {
   var props = PropertiesService.getScriptProperties();
+  var cache = CacheService.getScriptCache();
+
+  /* Send a 4-digit code: purpose 'signup' (new account) or 'reset' (forgot password). */
   if (a === 'pStart') {
     var email = cleanEmail_(req.email);
+    var purpose = req.purpose === 'reset' ? 'reset' : 'signup';
     if (!email) return { error: 'bad_email' };
-    var cache = CacheService.getScriptCache();
+    var exists = !!props.getProperty('A_' + email);
+    if (purpose === 'signup' && exists) return { error: 'exists' };
+    if (purpose === 'reset' && !exists) return { error: 'no_account' };
     var sent = Number(cache.get('SENT_' + email) || 0);
     if (sent >= 5) return { error: 'too_many' };
     var code = String(Math.floor(1000 + Math.random() * 9000));
-    cache.put('OTP_' + email, hash_(code) + '|0', 600);
+    cache.put('OTP_' + purpose + '_' + email, hash_(code) + '|0', 600);
     cache.put('SENT_' + email, String(sent + 1), 3600);
-    MailApp.sendEmail({
-      to: email,
-      subject: 'Your Lucky Poker sign-in code: ' + code,
-      body: 'Your Lucky Poker sign-in code is ' + code + '.\n\nIt works for 10 minutes. If you did not ask for this, you can ignore this email.',
-      name: 'Lucky Poker'
-    });
+    sendCode_(email, code, purpose);
     return { ok: true };
   }
+
+  /* Check the code; returns a short-lived token that allows setting a password once. */
   if (a === 'pVerify') {
     var em = cleanEmail_(req.email);
-    var c2 = CacheService.getScriptCache();
-    var rec = c2.get('OTP_' + em);
+    var pur = req.purpose === 'reset' ? 'reset' : 'signup';
+    var ck = 'OTP_' + pur + '_' + em;
+    var rec = cache.get(ck);
     if (!em || !rec) return { error: 'code_expired' };
     var parts = rec.split('|');
     var tries = Number(parts[1] || 0);
-    if (tries >= 5) { c2.remove('OTP_' + em); return { error: 'code_expired' }; }
-    if (hash_(String(req.code || '').trim()) !== parts[0]) { c2.put('OTP_' + em, parts[0] + '|' + (tries + 1), 600); return { error: 'bad_code' }; }
-    c2.remove('OTP_' + em);
+    if (tries >= 5) { cache.remove(ck); return { error: 'code_expired' }; }
+    if (hash_(String(req.code || '').trim()) !== parts[0]) { cache.put(ck, parts[0] + '|' + (tries + 1), 600); return { error: 'bad_code' }; }
+    cache.remove(ck);
+    var setup = Utilities.getUuid().replace(/-/g, '');
+    cache.put('SETUP_' + setup, JSON.stringify({ email: em, purpose: pur }), 900);
+    return { ok: true, setup: setup };
+  }
+
+  /* Create or reset the password using the token from pVerify. */
+  if (a === 'pSetPassword') {
+    var raw = cache.get('SETUP_' + String(req.setup || ''));
+    if (!raw) return { error: 'code_expired' };
+    var su = JSON.parse(raw);
+    var pw = String(req.password || '');
+    if (pw.length < 8) return { error: 'weak_password' };
+    var salt = Utilities.getUuid();
+    props.setProperty('A_' + su.email, JSON.stringify({ salt: salt, hash: pwHash_(pw, salt), at: Date.now() }));
+    cache.remove('SETUP_' + req.setup);
+    if (su.purpose === 'reset') endSessions_(su.email);
+    return { ok: true, email: su.email };
+  }
+
+  /* Email + password sign-in. */
+  if (a === 'pLogin') {
+    var le = cleanEmail_(req.email);
+    if (!le) return { error: 'bad_login' };
+    var fails = Number(cache.get('LFAIL_' + le) || 0);
+    if (fails >= 8) return { error: 'too_many' };
+    var acc = props.getProperty('A_' + le);
+    if (!acc) { cache.put('LFAIL_' + le, String(fails + 1), 900); return { error: 'bad_login' }; }
+    acc = JSON.parse(acc);
+    if (pwHash_(String(req.password || ''), acc.salt) !== acc.hash) { cache.put('LFAIL_' + le, String(fails + 1), 900); return { error: 'bad_login' }; }
+    cache.remove('LFAIL_' + le);
     var token = Utilities.getUuid().replace(/-/g, '') + Utilities.getUuid().replace(/-/g, '');
-    props.setProperty('S_' + token, JSON.stringify({ email: em, exp: Date.now() + SESSION_DAYS * 864e5 }));
+    props.setProperty('S_' + token, JSON.stringify({ email: le, exp: Date.now() + SESSION_DAYS * 864e5 }));
     return { ok: true, token: token };
   }
 
@@ -255,6 +289,54 @@ function findPlayerName_(data, phone) {
     if (p) return p.name;
   }
   return '';
+}
+
+function pwHash_(pw, salt) {
+  var h = salt + ':' + pw;
+  for (var i = 0; i < 300; i++) {
+    h = Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, h + salt));
+  }
+  return h;
+}
+
+function endSessions_(email) {
+  var props = PropertiesService.getScriptProperties();
+  var all = props.getProperties();
+  Object.keys(all).forEach(function (k) {
+    if (k.indexOf('S_') !== 0) return;
+    try { if (JSON.parse(all[k]).email === email) props.deleteProperty(k); } catch (e) {}
+  });
+}
+
+function sendCode_(email, code, purpose) {
+  var title = purpose === 'reset' ? 'Reset your password' : 'Verify your email';
+  var line = purpose === 'reset'
+    ? 'Use this code in Lucky Poker to set a new password.'
+    : 'Use this code in Lucky Poker to finish creating your account.';
+  var digits = code.split('').map(function (d) {
+    return '<td style="padding:0 5px"><div style="width:52px;height:64px;line-height:64px;border-radius:12px;background:#fbf7ec;border:2px solid #d4a73a;font:800 34px Arial,sans-serif;color:#1c1813;text-align:center">' + d + '</div></td>';
+  }).join('');
+  var html =
+    '<div style="margin:0;padding:24px 12px;background:#0b3324">' +
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;margin:0 auto;border-collapse:collapse">' +
+    '<tr><td style="padding:20px 24px;background:#0c3d2a;border-radius:16px 16px 0 0;border-bottom:2px solid #d4a73a;text-align:center">' +
+    '<div style="display:inline-block;padding:8px 22px;background:#b8281d;border-radius:6px;font:800 22px Arial Narrow,Arial,sans-serif;letter-spacing:3px;color:#fbeed2">&#9824; LUCKY POKER</div>' +
+    '<div style="margin-top:8px;font:700 12px Arial,sans-serif;letter-spacing:4px;color:#f6d67a;text-transform:uppercase">Game night at home</div></td></tr>' +
+    '<tr><td style="padding:28px 24px;background:#fbf7ec;border-radius:0 0 16px 16px;text-align:center">' +
+    '<div style="font:800 24px Arial,sans-serif;color:#1c1813">' + title + '</div>' +
+    '<p style="margin:10px 0 22px;font:15px/1.5 Arial,sans-serif;color:#6a5e47">' + line + '</p>' +
+    '<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto"><tr>' + digits + '</tr></table>' +
+    '<p style="margin:22px 0 0;font:13px/1.5 Arial,sans-serif;color:#6a5e47">The code works for 10 minutes. If you did not ask for it, you can ignore this email.</p>' +
+    '</td></tr>' +
+    '<tr><td style="padding:14px;text-align:center;font:12px Arial,sans-serif;color:#a8b6a6">Lucky Poker &middot; poker.nammane.in</td></tr>' +
+    '</table></div>';
+  MailApp.sendEmail({
+    to: email,
+    subject: code + ' is your Lucky Poker code',
+    body: title + '\n\nYour Lucky Poker code is ' + code + '.\n' + line + '\nIt works for 10 minutes.',
+    htmlBody: html,
+    name: 'Lucky Poker'
+  });
 }
 
 function session_(token) {

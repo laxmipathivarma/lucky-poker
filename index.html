@@ -375,7 +375,7 @@ function loginView(){const busy=ui.login&&ui.login.busy;return `<section class="
 </section>
 <section class="panel">
   <h2>Player sign in</h2>
-  <p class="hint">For players. Sign in with your email and a 4-digit code to see your tables, upcoming games and your record.</p>
+  <p class="hint">For players. Sign in, or create an account with your email (we send a 4-digit code to confirm it), to see your tables, upcoming games and record.</p>
   <div class="row"><a class="btn pri" href="player.html">Player sign in</a></div>
 </section>
 </div>`}
@@ -681,7 +681,7 @@ function sheetMsg(where){const s=ui.sheet;if(!s.msg||s.where!==where)return '';r
 function accessPanel(){if(!syncCfg())return '';const ps=(ui.profiles||[]).slice().sort((a,b)=>(a.status==='pending'?0:1)-(b.status==='pending'?0:1)||b.at-a.at);const link=location.origin+location.pathname.replace(/[^/]*$/,'')+'player.html';
   return `<section class="panel">
   <h2>Player access</h2>
-  <p class="hint">Players sign in at <b>${esc(link.replace(/^https?:\/\//,''))}</b> with an email code and add their mobile number. Approve a request only when the number belongs to that person; they then see only their own games, tables, upcoming invites and record.</p>
+  <p class="hint">Players create an account at <b>${esc(link.replace(/^https?:\/\//,''))}</b> with their email and a password, then add their mobile number. Approve a request only when the number belongs to that person; they then see only their own games, tables, upcoming invites and record.</p>
   <div class="row"><a class="btn" href="${esc(waLink('','♠ Lucky Poker\nSee your games, tables and upcoming game nights here:\n'+link+'\nSign in with your email, then add the mobile number I have for you.'))}" target="_blank" rel="noopener">Share player link on WhatsApp</a></div>
   <div class="list">${ps.length?ps.map(p=>`<div class="li"><div class="main"><div class="pay">${esc(p.name||'(no name)')} ${p.status==='approved'?'<span class="tag live">Approved</span>':p.status==='rejected'?'<span class="tag out">Declined</span>':'<span class="tag due">Waiting</span>'}</div><div class="sub">${esc(p.email)} · +${esc(p.phone)} · ${p.matched?'number is on your player list':'number not on your player list yet'}</div></div>
     ${p.status!=='approved'?`<button class="btn pri" type="button" data-act="approveP" data-email="${esc(p.email)}" data-ok="1">Approve</button>`:''}${p.status!=='rejected'?`<button class="btn ghost" type="button" data-act="approveP" data-email="${esc(p.email)}" data-ok="0">${p.status==='approved'?'Remove access':'Decline'}</button>`:''}</div>`).join(''):'<p class="empty">No player sign-ups yet.</p>'}</div>
