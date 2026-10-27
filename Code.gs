@@ -15,6 +15,7 @@ var FOLDER_NAME = 'Lucky Poker';
 var DATA_FILE = 'lucky-poker-data.json';
 var SHEET_NAME = 'Lucky Poker – All games';
 var SESSION_DAYS = 60;
+var SENDER = 'luckypoker@nammane.in';
 
 function setup() {
   var props = PropertiesService.getScriptProperties();
@@ -88,6 +89,7 @@ function admin_(a, req) {
       ok: true,
       data: { games: data.games, deleted: data.deleted, resetAt: data.resetAt || 0 },
       profiles: profileList_(data),
+      rsvp: data.rsvp,
       sheetUrl: ss.getUrl()
     };
   } finally {
@@ -106,6 +108,7 @@ function profileList_(data) {
 function resetData_(folder, data) {
   data.games = {};
   data.deleted = [];
+  data.rsvp = {};
   data.resetAt = Date.now();
   writeSheets_(folder, data, [
     { key: 'summary', name: 'Summary', header: true, rows: [['Date', 'Day', 'Game', 'Venue', 'Tables', 'Players', 'Total buy-ins', 'Rake', 'Dealer bonus', 'Shared expenses', 'House keeps', 'Status', 'Tab']] },
@@ -247,6 +250,15 @@ function player_(a, req) {
       data.profiles[sess.email] = prof;
       file.setContent(JSON.stringify(data));
     }
+    if (a === 'pRsvp') {
+      if (!prof || prof.status !== 'approved') return { error: 'not_approved' };
+      var g = data.games[String(req.gameId || '')];
+      if (!g || !isInvited_(g, prof.phone)) return { error: 'not_invited' };
+      var ans = req.answer === 'yes' ? 'yes' : 'no';
+      data.rsvp[g.id] = data.rsvp[g.id] || {};
+      data.rsvp[g.id][prof.phone] = { s: ans, at: Date.now(), name: prof.name || '' };
+      file.setContent(JSON.stringify(data));
+    }
     return { ok: true, me: myView_(data, sess.email, prof) };
   } finally {
     lock.releaseLock();
@@ -264,7 +276,16 @@ function myView_(data, email, prof) {
     var g = data.games[id];
     if (!g || g.sample) return;
     var me = (g.players || []).filter(function (p) { return normPhone_(p.phone) === prof.phone; })[0];
-    if (!me) return;
+    var invited = isInvited_(g, prof.phone);
+    if (!me && !invited) return;
+    if (!me) {
+      if (g.date >= today) {
+        var r0 = (data.rsvp[g.id] || {})[prof.phone];
+        out.upcoming.push({ id: g.id, date: g.date, time: g.time || '', name: g.name, venue: g.venue || '', address: g.address || '',
+          maps: g.mapsUrl || '', gatePass: g.gatePass || '', notes: g.notes || '', table: '', rsvp: r0 ? r0.s : 'pending' });
+      }
+      return;
+    }
     var tables = g.tables || [];
     var t = tables.filter(function (x) { return x.id === me.table; })[0] || tables[0] || { name: 'Table 1' };
     var b = (me.buyins || []).reduce(function (s, x) { return s + Number(x.amt || 0); }, 0);
@@ -274,7 +295,9 @@ function myView_(data, email, prof) {
       date: g.date, time: g.time || '', name: g.name, venue: g.venue || '', address: g.address || '',
       maps: g.mapsUrl || '', gatePass: g.gatePass || '', notes: g.notes || '', table: t.name, cur: g.cur || '₹'
     };
-    if (g.date > today && me.out == null) {
+    if (g.date >= today && me.out == null && !(me.buyins || []).length) {
+      var r1 = (data.rsvp[g.id] || {})[prof.phone];
+      row.id = g.id; row.rsvp = r1 ? r1.s : (invited ? 'pending' : 'yes');
       out.upcoming.push(row);
       return;
     }
@@ -301,6 +324,12 @@ function myView_(data, email, prof) {
   tot.net = Math.round(tot.net * 100) / 100;
   out.stats = tot;
   return out;
+}
+
+function isInvited_(g, phone) {
+  if (!phone) return false;
+  if ((g.invitees || []).some(function (x) { return normPhone_(x.phone) === phone; })) return true;
+  return (g.players || []).some(function (x) { return normPhone_(x.phone) === phone; });
 }
 
 function shareOf_(g) {
@@ -360,13 +389,25 @@ function sendCode_(email, code, purpose) {
     '</td></tr>' +
     '<tr><td style="padding:14px;text-align:center;font:12px Arial,sans-serif;color:#a8b6a6">Lucky Poker &middot; poker.nammane.in</td></tr>' +
     '</table></div>';
-  MailApp.sendEmail({
-    to: email,
-    subject: code + ' is your Lucky Poker code',
-    body: title + '\n\nYour Lucky Poker code is ' + code + '.\n' + line + '\nIt works for 10 minutes.',
-    htmlBody: html,
-    name: 'Lucky Poker'
-  });
+  var subject = code + ' is your Lucky Poker code';
+  var text = title + '\n\nYour Lucky Poker code is ' + code + '.\n' + line + '\nIt works for 10 minutes.';
+  // Send from luckypoker@nammane.in when it is set up as a "Send mail as" address in this Gmail account.
+  try {
+    if (GmailApp.getAliases().map(function (x) { return x.toLowerCase(); }).indexOf(SENDER) >= 0) {
+      GmailApp.sendEmail(email, subject, text, { htmlBody: html, name: 'Lucky Poker', from: SENDER, replyTo: SENDER });
+      return;
+    }
+  } catch (e) {}
+  MailApp.sendEmail({ to: email, subject: subject, body: text, htmlBody: html, name: 'Lucky Poker', replyTo: SENDER });
+}
+
+/* Run from the editor to check which address codes are sent from. */
+function checkSender() {
+  var aliases = GmailApp.getAliases();
+  Logger.log('Send-as addresses: ' + (aliases.join(', ') || 'none'));
+  Logger.log(aliases.map(function (x) { return x.toLowerCase(); }).indexOf(SENDER) >= 0
+    ? 'Codes will be sent from ' + SENDER
+    : SENDER + ' is not a Send mail as address in this Gmail yet; codes go from this Gmail with replies to ' + SENDER);
 }
 
 function session_(token) {
@@ -403,6 +444,7 @@ function readData_(file) {
   data.deleted = data.deleted || [];
   data.tabs = data.tabs || {};
   data.profiles = data.profiles || {};
+  data.rsvp = data.rsvp || {};
   return data;
 }
 

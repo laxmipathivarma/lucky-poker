@@ -13,6 +13,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-180.png">
 <script src="config.js"></script>
+<script src="install.js"></script>
 <style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>Lucky Poker</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -242,6 +243,41 @@ body.signed-out::before{background:transparent}
 .lnote{margin:0;font-size:13px;color:var(--muted);text-align:center}
 .lfoot{margin:0;font-size:12px;color:#a9bdb1;letter-spacing:.06em}
 .hdr-out{border:1px solid rgb(244 239 226 / .3);background:transparent;color:#e8e0c8;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer;min-height:34px}
+/* invitations */
+.invp{gap:6px;padding:6px 6px 6px 12px;background:var(--bg);border:1px solid var(--line)}
+.invp small{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.invp.yes small{color:var(--up)}.invp.no small{color:var(--down)}.invp.pending small{color:var(--warn)}
+.invp button{border:0;background:none;width:26px;height:26px;border-radius:50%;color:var(--muted);cursor:pointer;font-size:16px}
+.btn.addp{min-height:38px;padding:6px 12px;font-size:14px;border-style:dashed}
+.rcount{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.pill.ok{background:color-mix(in srgb,var(--up) 16%,transparent);color:var(--up)}.pill.no{background:color-mix(in srgb,var(--down) 14%,transparent);color:var(--down)}.pill.wait{background:var(--warn-bg);color:var(--warn)}
+.rcount .pill{border-radius:999px;padding:3px 9px;font-size:12px;font-weight:700}
+.rsv h3{margin:0 0 4px;font-family:var(--f-display);font-size:18px;letter-spacing:.03em}
+.ti{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:none}
+/* mobile app style: bottom tab bar on phones */
+@media (max-width:760px){
+  nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:9;display:grid;grid-template-columns:repeat(5,1fr);gap:0;background:rgb(8 44 30 / .97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--gold-line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px);overflow:visible}
+  nav.tabs button{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 2px 9px;font-family:var(--f-body);font-size:11px;font-weight:600;letter-spacing:0;border-bottom:0;border-top:3px solid transparent;min-width:0}
+  nav.tabs button[aria-selected="true"]{border-top-color:var(--gold-hi);color:#fff;background:rgb(255 255 255 / .05)}
+  nav.tabs .ti{display:block}
+  nav.tabs .tl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  nav.tabs button .ct{position:absolute;top:3px;left:calc(50% + 6px);margin:0;padding:0 5px;font-size:10px;min-width:16px;height:16px;line-height:16px}
+  .top .wrap{padding-block:6px 6px}
+  main{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))!important}
+  .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .btn{min-height:48px}
+  .panel{padding:16px;border-radius:18px}
+}
+.getapp{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--gold-line);border-radius:18px;padding:12px;box-shadow:var(--lift)}
+.getapp img{border-radius:12px;flex-shrink:0}
+.getapp div{flex:1;display:flex;flex-direction:column;min-width:0}.getapp span{font-size:13px;color:var(--muted)}
+/* expanding sections */
+.panel.acc>h2{cursor:pointer;user-select:none;-webkit-user-select:none;padding-right:34px;position:relative;min-height:32px}
+.panel.acc>h2::after{content:"";position:absolute;right:6px;top:50%;width:10px;height:10px;margin-top:-7px;border-right:2.5px solid var(--muted);border-bottom:2.5px solid var(--muted);transform:rotate(45deg);transition:transform .18s}
+.panel.acc.shut>h2::after{transform:rotate(-45deg);margin-top:-4px}
+.panel.acc.shut>*:not(h2){display:none!important}
+.panel.acc.shut{gap:0;padding-block:14px}
+.panel.acc>h2:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:6px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -326,7 +362,7 @@ async function syncNow(manual,where){if(!syncCfg())return false;if(syncing){clea
   const ids=[...pending];pending.clear();let ok=false;
   try{const games={};ids.forEach(id=>{if(S.games[id])games[id]=S.games[id]});
     const j=await api({action:'save',games,deleted:S.deleted,sheets:sheetPayload()});
-    const changed=mergeRemote(j.data);ui.profiles=j.profiles||ui.profiles;S.settings.bookUrl=j.sheetUrl;S.settings.bookAt=Date.now();lsSave();setStatus('cloud');ok=true;
+    const changed=mergeRemote(j.data);ui.profiles=j.profiles||ui.profiles;ui.rsvp=j.rsvp||ui.rsvp;S.settings.bookUrl=j.sheetUrl;S.settings.bookAt=Date.now();lsSave();setStatus('cloud');ok=true;
     if(manual)ui.sheet={busy:null,msg:'Google Sheet updated with all games.',err:false,where};
     if(changed||manual)render();
     if(pending.size){clearTimeout(timer);timer=setTimeout(()=>syncNow(false),1500)}}
@@ -334,7 +370,7 @@ async function syncNow(manual,where){if(!syncCfg())return false;if(syncing){clea
     if(manual||e.error==='bad_key'){ui.sheet={busy:null,msg:syncErr(e),err:true,where:where||'settle'};render()}
     if(e.error!=='bad_key')retryT=setTimeout(()=>syncNow(false),30000)}
   syncing=false;return ok}
-async function cloudLoad(){if(!syncCfg())return;try{const j=await api({action:'load'});const changed=mergeRemote(j.data);const pc=JSON.stringify(j.profiles||[])!==JSON.stringify(ui.profiles||[]);ui.profiles=j.profiles||[];if(pc&&tab==='games')render();S.settings.bookUrl=j.sheetUrl;lsSave();if(changed)render();if(pending.size)syncNow(false);else setStatus('cloud')}catch(e){setStatus(navigator.onLine===false?'offline':'local')}}
+async function cloudLoad(){if(!syncCfg())return;try{const j=await api({action:'load'});const changed=mergeRemote(j.data);const pc=JSON.stringify(j.profiles||[])!==JSON.stringify(ui.profiles||[]);ui.profiles=j.profiles||[];const rc=JSON.stringify(j.rsvp||{})!==JSON.stringify(ui.rsvp||{});ui.rsvp=j.rsvp||{};if((pc||rc)&&(tab==='games'||tab==='invite'))render();S.settings.bookUrl=j.sheetUrl;lsSave();if(changed)render();if(pending.size)syncNow(false);else setStatus('cloud')}catch(e){setStatus(navigator.onLine===false?'offline':'local')}}
 function encodeConn(c){return btoa(unescape(encodeURIComponent(c.url+'|'+c.key))).replace(/=+$/,'')}
 function decodeConn(code){try{code=String(code).trim().replace(/^.*#connect=/,'');const t=decodeURIComponent(escape(atob(code)));const [url,key]=t.split('|');if(/^https:\/\/script\.google(usercontent)?\.com\//.test(url)&&key)return{url,key}}catch(e){}return null}
 async function connectWith(code,where){const c=decodeConn(code);if(!c){ui.sheet={busy:null,msg:'That does not look like a Lucky Poker connection code. Copy the whole code and try again.',err:true,where};render();return}
@@ -386,8 +422,10 @@ function addBuy(pid,amt,m){const g=G(),p=g.players.find(x=>x.id===pid);if(!p||!(
 /* ---------- render ---------- */
 const TABS=[['invite','Invite'],['table','Table'],['costs','Rake & costs'],['settle','Settle up'],['games','Games']];
 function renderTabs(){const g=G();const n=g?g.players.length:0;
-  $('#tabs').innerHTML=TABS.map(([k,l])=>`<button role="tab" type="button" data-tab="${k}" aria-selected="${tab===k}">${l}${k==='table'&&g?`<span class="ct">${n}</span>`:''}</button>`).join('');
+  const IC={invite:'<path d="M3 6h18v12H3z"/><path d="M3 7l9 6 9-6"/>',table:'<ellipse cx="12" cy="12" rx="9" ry="6"/><path d="M8 12h8"/>',costs:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',settle:'<path d="M7 7h11l-3-3M17 17H6l3 3"/>',games:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h8M8 17h5"/>'};
+  $('#tabs').innerHTML=TABS.map(([k,l])=>`<button role="tab" type="button" data-tab="${k}" aria-selected="${tab===k}"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true">${IC[k]}</svg><span class="tl">${l}</span>${k==='table'&&g?`<span class="ct">${n}</span>`:''}</button>`).join('');
   $('#gname').textContent=g?g.name:'No game open';}
+function installCard(){const I=window.LPInstall;if(!I||I.standalone())return '';return `<div class="getapp"><img src="icon-192.png" alt="" width="52" height="52"><div><b>Get the Lucky Poker app</b><span>Add it to your Home Screen for one-tap access, like any other app.</span></div><button class="btn pri" type="button" data-act="install">Add</button></div>`}
 function loginView(){const L=ui.login||{};const who=L.who||(()=>{try{return localStorage.getItem('lp.who')||'player'}catch(e){return 'player'}})();const busy=L.busy;
   const err=L.msg?`<div class="lmsg">${esc(L.msg)}</div>`:'';
   return `<div class="login">
@@ -412,6 +450,7 @@ function loginView(){const L=ui.login||{};const who=L.who||(()=>{try{return loca
       <p class="lnote">For the host only. Opens tables, buy-ins, settle up, invites and player approvals.</p>
     </form>`}
   </div>
+  <div style="width:100%;max-width:420px">${installCard()}</div>
   <p class="lfoot">Lucky Poker · poker.nammane.in</p>
 </div>`}
 async function playerLogin(email,pass){ui.login={busy:true,who:'player',email};render();
@@ -425,7 +464,15 @@ async function adminLogin(user,pass){ui.login={busy:true,user,who:'admin'};rende
     if(j.error){ui.login={busy:false,user,who:'admin',msg:j.error==='too_many'?'Too many tries. Wait 15 minutes and try again.':j.error==='not_set'?'Admin sign-in is not set up yet. On a device that is already connected, set it in Games → Admin sign-in.':'Username or password is not right.'};render();return}
     S.settings.sync={url:window.LP_API,key:j.key};lsSave();ui.login=null;tab='games';render();cloudLoad()}
   catch(e){ui.login={busy:false,user,who:'admin',msg:'Could not reach the server. Check your internet connection.'};render()}}
-function render(){renderTabs();const g=G();const app=$('#app');
+function render(){render0();enhanceSections()}
+function enhanceSections(){ui.acc=ui.acc||{};const ps=[...document.querySelectorAll('#app section.panel')].filter(p=>p.querySelector(':scope > h2'));
+  ps.forEach((p,i)=>{const h=p.querySelector(':scope > h2');const key=tab+':'+h.textContent.trim();let open=ui.acc[key];
+    if(open==null)open=i===0||p.classList.contains('closepanel')||!!p.querySelector('.callout.warn');
+    p.classList.add('acc');p.classList.toggle('shut',!open);h.setAttribute('role','button');h.tabIndex=0;h.setAttribute('aria-expanded',String(open));h.dataset.acc=key})}
+function toggleSection(h){const p=h.parentElement;const open=p.classList.contains('shut');p.classList.toggle('shut',!open);h.setAttribute('aria-expanded',String(open));ui.acc[h.dataset.acc]=open}
+document.addEventListener('click',e=>{const h=e.target.closest('h2[data-acc]');if(h)toggleSection(h)});
+document.addEventListener('keydown',e=>{const h=e.target.closest&&e.target.closest('h2[data-acc]');if(h&&(e.key==='Enter'||e.key===' ')){e.preventDefault();toggleSection(h)}});
+function render0(){renderTabs();const g=G();const app=$('#app');
   if(!syncCfg()&&window.LP_API){document.body.classList.add('signed-out');app.innerHTML=loginView();return}
   document.body.classList.remove('signed-out');$('#hdrOut').hidden=false;
   if(!g&&tab!=='games'){app.innerHTML=startView();return}
@@ -470,7 +517,7 @@ function inviteText(g,p){const L=[`♠ *Lucky Poker* · Game night at home`,'',`
   if(g.time){const [h,m]=g.time.split(':');const d=new Date();d.setHours(+h,+m);L.push(`⏰ ${d.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'})}`)}
   if(g.venue)L.push(`📍 ${g.venue}`);if(g.address)L.push(`🏠 ${g.address}`);
   const m=mapsLink(g);if(m)L.push(`🗺️ Google Maps: ${m}`);if(g.gatePass)L.push(`🎟️ Gate pass: ${g.gatePass}`);
-  if(g.notes)L.push('',`📝 ${g.notes}`);L.push('','Reply ✅ if you can make it. See you there!');return L.join('\n')}
+  if(g.notes)L.push('',`📝 ${g.notes}`);L.push('','Accept or decline in the Lucky Poker app: '+location.origin+'/player.html','See you there!');return L.join('\n')}
 function resultText(g,r){const L=[`♠ Lucky Poker · ${g.name}`,`Hi ${r.p.name}, here is your result:`,`Bought in ${money(r.b,g)} · Cashed out ${money(r.c,g)}`,`Poker result ${sgn(r.res,g)}${r.share?` · Expense share −${money(r.share,g)}`:''}`,`Net for the night ${sgn(r.final,g)}`];
   liveTransfers(g).forEach(t=>{if(t.from===r.p.id)L.push(`You pay ${pName(g,t.to)} ${money(t.amt,g)}${t.done?' (settled ✅)':''}`);if(t.to===r.p.id)L.push(`${pName(g,t.from)} pays you ${money(t.amt,g)}${t.done?' (settled ✅)':''}`)});return L.join('\n')}
 function invitePanel(g){const up=g.date>=today();return `<section class="panel row" style="justify-content:space-between">
@@ -513,15 +560,41 @@ function inviteView(g){const m=mapsLink(g);const withPh=g.players;
 </section>
 </div>
 <section class="panel">
-  <h2>Invite all players</h2>
-  ${(()=>{const ps=g.players,done=ps.filter(p=>p.invitedAt),next=ps.find(p=>!p.invitedAt);
-    if(!ps.length)return `<p class="empty">No players added yet. Add players and their WhatsApp numbers on the Table tab, then come back here.</p>`;
-    return `<p class="hint">WhatsApp only opens one chat at a time, so Invite all walks through your players in order. Tap the button, send the message in WhatsApp, come back, and the button moves to the next player. For one message to everyone at once, use <b>Send on WhatsApp</b> above and pick your poker group.</p>
-    <div class="prog"><div class="row" style="justify-content:space-between"><span><b class="num">${done.length}</b> of ${ps.length} invited</span>${done.length?`<button class="btn ghost" type="button" data-act="resetInv">Start over</button>`:''}</div><div class="bar"><i style="width:${Math.round(done.length/ps.length*100)}%"></i></div></div>
-    ${next?`<a class="btn pri big-btn" href="${esc(waLink(next.phone,inviteText(g,next)))}" target="_blank" rel="noopener" data-act="invited" data-p="${next.id}">${done.length?'Next: ':'Invite all · '}${esc(next.name)} (${done.length+1} of ${ps.length})</a>`:`<div class="callout ok">Everyone has been invited.</div>`}
-    <div class="list">${ps.map(p=>`<div class="li"><div class="main"><div class="pay">${esc(p.name)} ${p.invitedAt?'<span class="tag live">Invited ✓</span>':''}</div><div class="sub">${p.phone?esc(p.phone):'No phone number. WhatsApp will ask you to pick the chat'}${p.invitedAt?' · sent '+when(p.invitedAt):''}</div></div><a class="btn" href="${esc(waLink(p.phone,inviteText(g,p)))}" target="_blank" rel="noopener" data-act="invited" data-p="${p.id}">${p.invitedAt?'Send again':'Send invite'}</a></div>`).join('')}</div>`})()}
-  <div class="row"><button class="btn" type="button" data-tab="table">Add players on the Table tab</button></div>
+  <h2>Who's invited</h2>
+  <p class="hint">Tap people to invite them. Invited players see this game in their Lucky Poker app and can accept or decline. You can follow replies in Games → Invitations.</p>
+  ${(()=>{const inv=invList(g);const invPh=new Set(inv.map(x=>waNum(x.phone)).filter(Boolean));const known=knownPeople().filter(k=>!invPh.has(waNum(k.phone)));
+    return `${inv.length?`<div class="chips">${inv.map(x=>`<span class="pill invp ${rsvpOf(g,x.phone)}"><span>${esc(x.name)}</span><small>${rsvpLabel(rsvpOf(g,x.phone))}</small>${x.src==='i'?`<button type="button" data-act="uninvite" data-k="${esc(x.key)}" aria-label="Remove ${esc(x.name)} from invite">×</button>`:''}</span>`).join('')}</div>`:'<p class="empty">Nobody invited yet.</p>'}
+    ${known.length?`<div class="lbl">Add from your players</div><div class="chips">${known.map(k=>`<button type="button" class="btn addp" data-act="invitePerson" data-n="${esc(k.name)}" data-ph="${esc(k.phone)}">+ ${esc(k.name)}</button>`).join('')}</div>`:''}
+    <form id="invAdd" class="row"><input id="iaName" class="grow" type="text" placeholder="Name" autocomplete="off" aria-label="Name"><input id="iaPhone" type="tel" inputmode="tel" placeholder="Mobile number" autocomplete="off" aria-label="Mobile number" style="max-width:200px"><button class="btn pri" type="submit">Invite</button></form>`})()}
+</section>
+<section class="panel">
+  <h2>Send on WhatsApp</h2>
+  ${(()=>{const ps=invList(g),done=ps.filter(p=>p.invitedAt),next=ps.find(p=>!p.invitedAt);
+    if(!ps.length)return `<p class="empty">Invite people above first.</p>`;
+    return `<p class="hint">WhatsApp opens one chat at a time, so this walks through everyone in order. Send the message, come back, and the button moves to the next person. For one message to a group, use <b>Send on WhatsApp</b> above.</p>
+    <div class="prog"><div class="row" style="justify-content:space-between"><span><b class="num">${done.length}</b> of ${ps.length} messaged</span>${done.length?`<button class="btn ghost" type="button" data-act="resetInv">Start over</button>`:''}</div><div class="bar"><i style="width:${Math.round(done.length/ps.length*100)}%"></i></div></div>
+    ${next?`<a class="btn pri big-btn" href="${esc(waLink(next.phone,inviteText(g,next)))}" target="_blank" rel="noopener" data-act="invited" data-k="${esc(next.key)}">${done.length?'Next: ':'Invite all · '}${esc(next.name)} (${done.length+1} of ${ps.length})</a>`:`<div class="callout ok">Everyone has been messaged.</div>`}`})()}
 </section>`}
+function invList(g){const out=[],seen=new Set();(g.invitees||[]).forEach(x=>{const k=waNum(x.phone)||('n:'+x.name.toLowerCase());if(seen.has(k))return;seen.add(k);out.push({key:'i:'+x.id,src:'i',name:x.name,phone:x.phone,invitedAt:x.invitedAt})});
+  g.players.forEach(p=>{const k=waNum(p.phone)||('n:'+p.name.toLowerCase());if(seen.has(k))return;seen.add(k);out.push({key:'p:'+p.id,src:'p',name:p.name,phone:p.phone,invitedAt:p.invitedAt})});return out}
+function knownPeople(){const m=new Map();Object.values(S.games).forEach(g=>{if(g.sample)return;g.players.concat(g.invitees||[]).forEach(p=>{const k=waNum(p.phone);if(k&&!m.has(k))m.set(k,{name:p.name,phone:p.phone})})});return [...m.values()].sort((a,b)=>a.name.localeCompare(b.name))}
+function rsvpOf(g,phone){const r=((ui.rsvp||{})[g.id]||{})[waNum(phone)];return r?(r.s==='yes'?'yes':'no'):'pending'}
+const rsvpLabel=s=>s==='yes'?'Accepted':s==='no'?'Declined':'Pending';
+function reminderText(g,x){return `♠ *Lucky Poker* · Reminder\n\nHi ${x.name}, you're invited to *${g.name}* on ${new Date(g.date+'T12:00').toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'})}${g.time?' at '+(()=>{const [h,m]=g.time.split(':');const d=new Date();d.setHours(+h,+m);return d.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'})})():''}${g.venue?', '+g.venue:''}.\n\nPlease accept or decline in the Lucky Poker app: ${location.origin}/player.html`}
+function invitationsPanel(){const gs=Object.values(S.games).filter(g=>!g.sample&&invList(g).length).sort((a,b)=>{const t=today();const fa=a.date>=t,fb=b.date>=t;if(fa!==fb)return fa?-1:1;return fa?(a.date.localeCompare(b.date)):(b.date.localeCompare(a.date))});
+  ui.openInv=ui.openInv||{};
+  return `<section class="panel"><h2>Invitations</h2>${gs.length?gs.map(g=>{const L=invList(g);const by={yes:[],no:[],pending:[]};L.forEach(x=>by[rsvpOf(g,x.phone)].push(x));const up=g.date>=today();
+    const open=ui.openInv[g.id]!=null?ui.openInv[g.id]:up&&g.id===gs[0].id;
+    const atTable=new Set(g.players.map(p=>waNum(p.phone)).filter(Boolean));const accNot=by.yes.filter(x=>x.src==='i'&&!atTable.has(waNum(x.phone)));
+    const row=(x,kind)=>`<div class="li"><div class="main"><div class="pay">${esc(x.name)}</div><div class="sub">${x.phone?'+'+esc(waNum(x.phone)):'No number'}</div></div>${kind==='pending'&&x.phone?`<a class="btn" href="${esc(waLink(x.phone,reminderText(g,x)))}" target="_blank" rel="noopener">Send reminder</a>`:''}${kind==='yes'&&x.src==='i'&&!atTable.has(waNum(x.phone))?`<button class="btn" type="button" data-act="seatInvitee" data-g="${g.id}" data-k="${esc(x.key)}">Add to table</button>`:''}</div>`;
+    return `<details class="gset inv" data-inv="${g.id}" ${open?'open':''}><summary><span class="gs-main"><b>${esc(g.name)}</b><span class="sub">${dLabel(g.date)}${g.venue?' · '+esc(g.venue):''}${up?'':' · past'}</span></span>
+      <span class="rcount"><span class="pill ok">${by.yes.length} ✓</span><span class="pill no">${by.no.length} ✗</span><span class="pill wait">${by.pending.length} …</span></span></summary>
+      <div class="gs-body">
+        <div class="rsv"><h3>Accepted · ${by.yes.length}</h3>${by.yes.length?`<div class="list">${by.yes.map(x=>row(x,'yes')).join('')}</div>`:'<p class="empty">Nobody yet.</p>'}${accNot.length>1?`<button class="btn pri" type="button" data-act="seatAll" data-g="${g.id}">Add all ${accNot.length} accepted to the table</button>`:''}</div>
+        <div class="rsv"><h3>Pending · ${by.pending.length}</h3>${by.pending.length?`<div class="list">${by.pending.map(x=>row(x,'pending')).join('')}</div>`:'<p class="empty">Everyone has replied.</p>'}</div>
+        <div class="rsv"><h3>Declined · ${by.no.length}</h3>${by.no.length?`<div class="list">${by.no.map(x=>row(x,'no')).join('')}</div>`:'<p class="empty">Nobody declined.</p>'}</div>
+        <div class="row"><button class="btn" type="button" data-act="openInvite" data-id="${g.id}">Edit invitation</button><span class="hint">Replies update when players answer in their app.</span></div>
+      </div></details>`}).join(''):'<p class="empty">No invitations yet. Create a game for a future date and invite players on the Invite tab.</p>'}</section>`}
 const buyOpts=g=>(g.buyOpts&&g.buyOpts.length?g.buyOpts:[10000,20000,30000]);
 const RESET_PIN_SHA='cde7febb104c39ca747ac7989a1e8b34';
 async function sha(t){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('lucky-poker:'+t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('').slice(0,32)}
@@ -799,7 +872,8 @@ function summary(g,c){const L=[];L.push(`♠ Lucky Poker — ${g.name}`);L.push(
 function gamesView(){const gs=Object.values(S.games).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.createdAt-a.createdAt));
   const lb={};gs.filter(g=>!g.sample).forEach(g=>{const c=calc(g);c.rows.forEach(r=>{if(r.final==null)return;const k=r.p.name.trim().toLowerCase();lb[k]=lb[k]||{name:r.p.name.trim(),net:0,games:0,best:-Infinity};lb[k].net+=r.final;lb[k].games++;lb[k].best=Math.max(lb[k].best,r.final)})});
   const lbs=Object.values(lb).sort((a,b)=>b.net-a.net);
-  return `<div class="two">
+  return `${installCard()}${invitationsPanel()}
+<div class="two">
 <section class="panel">
   <h2>All games</h2>
   <div class="list">${gs.length?gs.map(g=>{const c=calc(g);const conf=ui.confirm==='g:'+g.id;return `<div class="li"><div class="main"><div class="pay">${esc(g.name)} ${g.sample?'<span class="ex">Sample</span>':''}${g.date>today()?' <span class="tag live">Upcoming</span>':''}</div><div class="sub">${dLabel(g.date)} · ${c.n} players · buy-ins ${money(c.B,g)} · rake ${money(c.R,g)}${c.DB?' · dealer bonus '+money(c.DB,g):''}${(g.tables||[]).length>1?' · '+g.tables.length+' tables':''} · ${g.finished?'finished':c.allOut&&c.n?'all cashed out':'in progress'}</div></div>
@@ -845,8 +919,14 @@ document.addEventListener('click',e=>{
     case 'exSplit':ui.exSplit=t.dataset.v;{const f=['exLabel','exAmt','exBy'].map(i=>$('#'+i)?.value);render();['exLabel','exAmt','exBy'].forEach((i,k)=>{if($('#'+i)&&f[k]!=null)$('#'+i).value=f[k]})}return;
     case 'rmExp':snap();g.expenses=g.expenses.filter(x=>x.id!==t.dataset.id);touch(g);toast('Expense removed',true);break;
     case 'copyInvite':{const txt=$('#inviteTxt').textContent;try{navigator.clipboard.writeText(txt).then(()=>toast('Invitation copied',false),()=>selectEl('#inviteTxt'))}catch(err){selectEl('#inviteTxt')}return}
-    case 'invited':{const p=g.players.find(x=>x.id===pid);if(p){p.invitedAt=Date.now();touch(g);setTimeout(render,600)}return}
-    case 'resetInv':snap();g.players.forEach(p=>{delete p.invitedAt});touch(g);toast('Invite list reset',true);break;
+    case 'invited':{const k=t.dataset.k||('p:'+pid);const [src,id]=k.split(':');const o=src==='i'?(g.invitees||[]).find(x=>x.id===id):g.players.find(x=>x.id===id);if(o){o.invitedAt=Date.now();touch(g);setTimeout(render,600)}return}
+    case 'resetInv':snap();g.players.forEach(p=>{delete p.invitedAt});(g.invitees||[]).forEach(p=>{delete p.invitedAt});touch(g);toast('Invite list reset',true);break;
+    case 'invitePerson':{snap();g.invitees=g.invitees||[];g.invitees.push({id:nid(),name:t.dataset.n,phone:t.dataset.ph});touch(g);toast(t.dataset.n+' invited',true);break}
+    case 'uninvite':{snap();const id=t.dataset.k.split(':')[1];g.invitees=(g.invitees||[]).filter(x=>x.id!==id);touch(g);toast('Removed from invite',true);break}
+    case 'openInvite':S.cur=t.dataset.id;ui.table=null;lsSave();tab='invite';window.scrollTo(0,0);break;
+    case 'seatInvitee':case 'seatAll':{const x=S.games[t.dataset.g];if(!x)break;norm(x);const atT=new Set(x.players.map(p=>waNum(p.phone)).filter(Boolean));
+      const pick=(x.invitees||[]).filter(v=>rsvpOf(x,v.phone)==='yes'&&!atT.has(waNum(v.phone))&&(a==='seatAll'||('i:'+v.id)===t.dataset.k));
+      pick.forEach(v=>x.players.push({id:'p'+nid(),table:x.tables[0].id,name:v.name,phone:v.phone,buyins:[],out:null}));touch(x);toast(pick.length===1?pick[0].name+' added to '+x.tables[0].name:pick.length+' players added to '+x.tables[0].name,false);break}
     case 'hardResetOpen':ui.reset={};render();setTimeout(()=>{const i=$('#hrPin');i&&i.focus()},30);return;
     case 'hardResetCancel':ui.reset=null;break;
     case 'pickTable':ui.table=t.dataset.t;ui.closing=null;break;
@@ -867,6 +947,7 @@ document.addEventListener('click',e=>{
     case 'approveP':{const em=t.dataset.email,okk=t.dataset.ok==='1';(async()=>{try{const j=await api({action:'approve',email:em,ok:okk});ui.profiles=j.profiles||[];toast(okk?'Player approved':'Access removed',false)}catch(e){toast('Could not reach your Google Sheet. Try again.',false)}render()})();return}
     case 'copyConn':{const txt=$('#connTxt').textContent;try{navigator.clipboard.writeText(txt).then(()=>toast('Connection code copied',false),()=>selectEl('#connTxt'))}catch(err){selectEl('#connTxt')}return}
     case 'signOutAdmin':S={games:{},cur:null,deleted:[],settings:{updatedAt:0}};lsSave();pending.clear();setStatus('local');tab='table';ui.login={who:'admin'};$('#hdrOut').hidden=true;window.scrollTo(0,0);break;
+    case 'install':window.LPInstall&&window.LPInstall.open();return;
     case 'who':ui.login={who:t.dataset.v};try{localStorage.setItem('lp.who',t.dataset.v)}catch(e){}break;
     case 'eye':{const i=document.getElementById(t.dataset.for);if(i){const sh=i.type==='password';i.type=sh?'text':'password';t.textContent=sh?'Hide':'Show'}return}
     case 'disconnect':delete S.settings.sync;lsSave();setStatus('local');toast('This device is no longer saving to the Google Sheet',false);break;
@@ -878,7 +959,8 @@ document.addEventListener('click',e=>{
 function selectEl(sel){const el=$(sel);const r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r);toast('Text selected — tap Copy',false)}
 function selectShare(){const el=$('#shareTxt');const r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r);toast('Text selected — tap Copy',false)}
 
-document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.classList&&d.classList.contains('gset')){ui.openSet=ui.openSet||{};ui.openSet[d.dataset.id]=d.open}},true);
+document.addEventListener('lp-install-ready',()=>render());
+document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.dataset&&d.dataset.inv){ui.openInv=ui.openInv||{};ui.openInv[d.dataset.inv]=d.open;return}if(d&&d.classList&&d.classList.contains('gset')){ui.openSet=ui.openSet||{};ui.openSet[d.dataset.id]=d.open}},true);
 document.addEventListener('change',e=>{const t=e.target,g=G();
   if(t.dataset&&t.dataset.f==='tname'&&g){const tb=g.tables.find(x=>x.id===t.dataset.t);const v=t.value.trim();if(tb&&v){tb.name=v;touch(g)}render();return}
   if(t.dataset&&t.dataset.f==='tdealer'&&g){const tb=g.tables.find(x=>x.id===t.dataset.t);if(tb){tb.dealerPid=t.value;touch(g);render()}return}
@@ -905,6 +987,7 @@ document.addEventListener('change',e=>{const t=e.target,g=G();
 document.addEventListener('input',e=>{const t=e.target;if(t.id==='ngName')t.dataset.dirty='1';if(t.id==='ngDate'&&t.value){const n=$('#ngName');if(n&&!n.dataset.dirty)n.value=autoName(t.value)}});
 document.addEventListener('submit',e=>{e.preventDefault();wake();const f=e.target,g=G();
   if(f.id==='hardReset'){doHardReset($('#hrPin').value.trim());return}
+  if(f.id==='invAdd'){const n=$('#iaName').value.trim(),ph=$('#iaPhone').value.trim();if(!n){toast('Enter a name',false);return}snap();g.invitees=g.invitees||[];g.invitees.push({id:nid(),name:n,phone:ph});touch(g);render();toast(n+' invited',true);return}
   if(f.id==='playerLogin'){playerLogin($('#plEmail').value.trim().toLowerCase(),$('#plPass').value);return}
   if(f.id==='adminLogin'){adminLogin($('#alUser').value.trim(),$('#alPass').value);return}
   if(f.id==='setAdmin'){const u=$('#saUser').value.trim(),pw=$('#saPass').value;if(pw.length<8){toast('Use at least 8 characters for the password',false);return}

@@ -83,6 +83,57 @@ input:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(-
 .steps li.done{color:var(--up);border-color:var(--up)}.steps li.done span{background:var(--up);color:#fff}
 .hero{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;color:var(--cream);padding-block:6px}
 .hero svg{width:min(260px,70%);height:auto}
+/* mobile app style */
+header .wrap{padding-block:6px}
+.mark{width:52px;height:38px}.ribbon{width:132px}
+main{padding-block:16px 110px;gap:18px}
+.sec{display:flex;flex-direction:column;gap:12px;scroll-margin-top:70px}
+.sec>h2{color:var(--cream);font-size:22px}
+.sec>h2::before{background:var(--gold-hi)}
+.hello{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;color:var(--cream);padding-top:4px}
+.hello .k{font-family:var(--f-display);font-weight:700;font-size:13px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-hi)}
+.hello h1{font-size:36px;line-height:1}
+.badge{background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap}
+.invc{background:radial-gradient(circle at 20% 0%,#1f7a53 0%,#0a3a27 70%);border:1px solid var(--gold-line);border-radius:20px;padding:16px;color:var(--cream);display:flex;flex-direction:column;gap:12px;box-shadow:var(--lift)}
+.invtop{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.invtop .k{font-family:var(--f-display);font-weight:700;font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold-hi)}
+.invname{font-family:var(--f-display);font-size:28px;line-height:1.05}
+.when{display:flex;gap:14px;align-items:center}
+.when>div{flex-shrink:0;width:64px;border-radius:14px;background:var(--surface);color:var(--ink);display:flex;flex-direction:column;align-items:center;padding:6px 0;box-shadow:inset 0 -3px 0 var(--accent)}
+.when>div span{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.when>div b{font-family:var(--f-display);font-size:28px;line-height:1}
+.when ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px;font-size:14.5px;min-width:0}
+.when .mut2{color:#c9d6cc;font-size:13px}
+.note{margin:0;background:rgb(255 255 255 / .08);border-radius:10px;padding:8px 10px;font-size:14px}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.acts:empty{display:none}
+.btn.ol{background:transparent;border-color:rgb(242 193 78 / .6);color:#f6d684;min-height:40px}
+.rsvp{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rsvp .btn{min-height:50px;font-family:var(--f-display);font-size:18px;letter-spacing:.05em}
+.btn.ol2{background:var(--surface);color:var(--ink)}
+.btn.dark{background:#1b1f1d;border-color:#000;color:var(--cream)}
+.pill{display:inline-flex;align-items:center;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;letter-spacing:.02em;white-space:nowrap}
+.pill.ok{background:#d9f0e1;color:#14532d}.pill.no{background:#fde2de;color:#8f1a13}.pill.wait{background:#fff0cc;color:#7f5600}
+.stats{grid-template-columns:repeat(2,1fr)}
+.stat{border-radius:16px}
+.gcard{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--lift)}
+.gcard .ghead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.gcard .ghead div{display:flex;flex-direction:column;min-width:0}
+.gcard .ghead b{font-family:var(--f-display);font-size:20px}
+.gcard .ghead span{font-size:13px;color:var(--muted)}
+.gcard .net{font-family:var(--f-body);font-size:20px;font-variant-numeric:tabular-nums}
+.empty-card{background:rgb(255 255 255 / .08);border:1px dashed rgb(244 239 226 / .3);border-radius:16px;padding:16px;color:#e8e0c8;font-size:14.5px}
+.pcardp{background:var(--surface);border-radius:16px;padding:14px;display:flex;justify-content:space-between;align-items:center;gap:10px;box-shadow:var(--lift)}
+.pcardp div{display:flex;flex-direction:column;min-width:0}.pcardp span{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.btn.out{color:#e8e0c8;align-self:center}
+.getapp{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--gold-line);border-radius:18px;padding:12px;box-shadow:var(--lift)}
+.getapp img{border-radius:12px}
+.getapp div{flex:1;display:flex;flex-direction:column;min-width:0}.getapp span{font-size:13px;color:var(--muted)}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:8;display:grid;grid-template-columns:repeat(3,1fr);background:rgb(8 44 30 / .96);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--gold-line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+.tabbar a{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 10px;color:#c9d6cc;text-decoration:none;font-size:12px;font-weight:600}
+.tabbar .ic{font-size:20px;line-height:1}
+.tabbar i{position:absolute;top:4px;left:calc(50% + 8px);background:var(--accent);color:#fff;border-radius:999px;font-style:normal;font-size:11px;min-width:18px;height:18px;display:grid;place-items:center;padding:0 4px}
+@media (min-width:900px){.tabbar{display:none}main{padding-bottom:60px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -90,6 +141,7 @@ input:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(-
 <header><div class="wrap"><span id="logo" style="display:flex;align-items:center;gap:2px"></span><span class="who" id="who"></span></div></header>
 <main class="wrap" id="app"><section class="panel"><p class="hint">Loading…</p></section></main>
 <script src="config.js"></script>
+<script src="install.js"></script>
 <script>
 (function(){
 const SPADE='M0 -30 C8 -18 26 -10 26 4 C26 14 16 19 8 15 C5 13 3 11 2 9 C3 17 6 22 10 26 H-10 C-6 22 -3 17 -2 9 C-3 11 -5 13 -8 15 C-16 19 -26 14 -26 4 C-26 -10 -8 -18 0 -30 Z';
@@ -127,7 +179,7 @@ let st={token:null,email:'',me:null,mode:'login',step:'email',setup:null,busy:fa
 try{const v=JSON.parse(localStorage.getItem(TK)||'null');if(v){st.token=v.token;st.email=v.email||''}}catch(e){}
 const save=()=>{try{localStorage.setItem(TK,JSON.stringify({token:st.token,email:st.email}))}catch(e){}};
 async function api(body){const r=await fetch(API,{method:'POST',body:JSON.stringify(Object.assign({token:st.token},body)),redirect:'follow'});const j=await r.json();if(j.error)throw j;return j}
-const errText=e=>({bad_email:'Enter a valid email address.',too_many:'Too many tries. Please wait a while and try again.',code_expired:'That code has expired. Ask for a new one.',bad_code:'That code is not right. Check the email and try again.',bad_phone:'Enter your 10-digit mobile number.',signed_out:'Please sign in again.',exists:'An account with this email already exists. Sign in, or use Forgot password.',no_account:'No account uses this email yet. Create an account first.',weak_password:'Use at least 8 characters for your password.',bad_login:'Email or password is not right.'})[e&&e.error]||'Something went wrong. Check your connection and try again.';
+const errText=e=>({not_approved:'The host still needs to approve your number.',bad_email:'Enter a valid email address.',too_many:'Too many tries. Please wait a while and try again.',code_expired:'That code has expired. Ask for a new one.',bad_code:'That code is not right. Check the email and try again.',bad_phone:'Enter your 10-digit mobile number.',signed_out:'Please sign in again.',exists:'An account with this email already exists. Sign in, or use Forgot password.',no_account:'No account uses this email yet. Create an account first.',weak_password:'Use at least 8 characters for your password.',bad_login:'Email or password is not right.'})[e&&e.error]||'Something went wrong. Check your connection and try again.';
 const money=(n,c)=>(n<0?'−':'')+(c||'₹')+Math.abs(Math.round(n*100)/100).toLocaleString('en-IN',{maximumFractionDigits:2});
 const sgn=(n,c)=>(n>0.004?'+':'')+money(n,c);
 const cls=n=>n>0.004?'up':n<-0.004?'down':'mut';
@@ -140,7 +192,7 @@ const msg=()=>st.msg?`<div class="msg ${st.err?'err':'ok'}">${esc(st.msg)}</div>
 function render(){$('#who').textContent=st.token&&st.email?st.email:'';const a=$('#app');
   if(!API){a.innerHTML=`<section class="panel"><p class="hint">Player sign-in is being set up. Please check back soon.</p></section>`;return}
   if(!st.token){a.innerHTML=`<section class="hero">${fanArt('h',true,'')}<p style="margin:0;color:#e8e0c8">Your games, tables and invites from Lucky Poker.</p></section>
-  <section class="panel">${authView()}${msg()}</section>`;return}
+  <section class="panel">${authView()}${msg()}</section>${installCard()}`;return}
   const me=st.me;
   if(!me){a.innerHTML=`<section class="panel"><p class="hint">Loading your games…</p>${msg()}</section>`;return}
   const p=me.profile;
@@ -151,19 +203,31 @@ function render(){$('#who').textContent=st.token&&st.email?st.email:'';const a=$
   <p class="hint">Thanks, ${esc(p.name||'player')}. Your number <b>${esc(p.phone.replace(/^91/,'+91 '))}</b> has been sent to the host to confirm. Once they approve it, your games appear here. Pull to refresh or tap below.</p>
   <div class="row"><button class="btn pri" type="button" data-a="refresh">Check again</button><button class="btn ghost" type="button" data-a="edit">Change number</button><button class="btn ghost" type="button" data-a="out">Sign out</button></div>${msg()}
   ${st.editing?profileForm(p):''}</section>`;return}
-  const s=me.stats||{};const cur=(me.games[0]||me.upcoming[0]||{}).cur;
-  a.innerHTML=`<section class="panel" style="gap:6px"><h1>Hi ${esc(p.name||'there')}</h1><p class="hint">Only you can see this page. Other players' details are never shown.</p></section>
-  <div class="stats"><div class="stat"><span class="lbl">Games played</span><b>${s.played||0}</b></div><div class="stat"><span class="lbl">Total result</span><b class="${cls(s.net||0)}">${sgn(s.net||0,cur)}</b></div><div class="stat"><span class="lbl">Up / down nights</span><b>${s.wins||0} / ${s.losses||0}</b></div><div class="stat"><span class="lbl">Best night</span><b class="${cls(s.best||0)}">${s.best==null?'—':sgn(s.best,cur)}</b></div></div>
-  <section class="panel"><h2>Upcoming games</h2>${me.upcoming.length?me.upcoming.map(g=>`<div class="inv"><span class="k">Game night at home</span><b>${esc(g.name)}</b>
-    <div class="l"><span>Date</span>${dfull(g.date)}</div>${g.time?`<div class="l"><span>Time</span>${t12(g.time)}</div>`:''}${g.venue?`<div class="l"><span>Venue</span>${esc(g.venue)}</div>`:''}${g.address?`<div class="l"><span>Address</span>${esc(g.address)}</div>`:''}<div class="l"><span>Your table</span>${esc(g.table)}</div>${g.notes?`<div class="l"><span>Note</span>${esc(g.notes)}</div>`:''}
-    <div class="row" style="margin-top:6px">${maps(g)?`<a class="btn" href="${esc(maps(g))}" target="_blank" rel="noopener">Google Maps</a>`:''}${g.gatePass?`<a class="btn" href="${esc(g.gatePass)}" target="_blank" rel="noopener">Gate pass</a>`:''}</div></div>`).join(''):'<p class="hint">No upcoming games yet. When the host adds you to the next game, it shows up here.</p>'}</section>
-  <section class="panel"><h2>Your games</h2>${me.games.length?me.games.map(g=>{const owe=(g.settle||[]).filter(x=>!x.done);const pay=owe.filter(x=>x.pay).reduce((a,x)=>a+x.amt,0),get=owe.filter(x=>!x.pay).reduce((a,x)=>a+x.amt,0);
-    const tag=g.net==null?'<span class="tag">Playing</span>':(g.settle||[]).length?(owe.length?(pay?`<span class="tag due">You pay ${money(pay,g.cur)}</span>`:`<span class="tag due">You receive ${money(get,g.cur)}</span>`):'<span class="tag ok">Settled ✓</span>'):'';
-    return `<div class="game"><div class="ghead"><b>${esc(g.name)}</b><span class="mut" style="font-size:13px">${dshort(g.date)}${g.venue?' · '+esc(g.venue):''} · ${esc(g.table)}</span></div>
-    <div class="grid"><div><span class="lbl">Bought in</span><b>${money(g.boughtIn,g.cur)}</b></div><div><span class="lbl">Cash-out</span><b>${g.cashOut==null?'—':money(g.cashOut,g.cur)}</b></div><div><span class="lbl">Result</span><b class="${cls(g.result||0)}">${g.result==null?'—':sgn(g.result,g.cur)}</b></div>${g.expenseShare?`<div><span class="lbl">Shared costs</span><b>${money(-g.expenseShare,g.cur)}</b></div>`:''}<div><span class="lbl">Net</span><b class="${cls(g.net||0)}">${g.net==null?'—':sgn(g.net,g.cur)}</b></div></div>
-    <div class="row">${tag}</div></div>`}).join(''):'<p class="hint">No games yet.</p>'}</section>
-  <div class="row"><button class="btn ghost" type="button" data-a="edit2" style="color:var(--cream)">Edit profile</button><button class="btn ghost" type="button" data-a="out" style="color:var(--cream)">Sign out</button></div>
-  ${st.editing?`<section class="panel">${profileForm(p)}<p class="hint">Changing your number sends it to the host to confirm again.</p>${msg()}</section>`:msg()}`}
+  const s=me.stats||{};const cur=(me.games[0]||me.upcoming[0]||{}).cur;const inv=me.upcoming;const newInv=inv.filter(g=>g.rsvp==='pending').length;
+  const rsvpPill=g=>g.rsvp==='yes'?'<span class="pill ok">You\'re in ✓</span>':g.rsvp==='no'?'<span class="pill no">Not coming</span>':'<span class="pill wait">Reply needed</span>';
+  a.innerHTML=`<section class="hello"><div><span class="k">Welcome back</span><h1>${esc(p.name||'Player')}</h1></div>${newInv?`<a class="badge" href="#invites">${newInv} new invite${newInv>1?'s':''}</a>`:''}</section>
+  <section id="invites" class="sec"><h2>Invitations</h2>${inv.length?inv.map(g=>`<article class="invc">
+    <div class="invtop"><span class="k">Game night at home</span>${rsvpPill(g)}</div>
+    <b class="invname">${esc(g.name)}</b>
+    <div class="when"><div><span>${new Date(g.date+'T12:00').toLocaleDateString('en-IN',{weekday:'short'})}</span><b>${new Date(g.date+'T12:00').getDate()}</b><span>${new Date(g.date+'T12:00').toLocaleDateString('en-IN',{month:'short'})}</span></div>
+      <ul>${g.time?`<li>⏰ ${t12(g.time)}</li>`:''}${g.venue?`<li>📍 ${esc(g.venue)}</li>`:''}${g.address?`<li class="mut2">${esc(g.address)}</li>`:''}${g.table?`<li>🃏 ${esc(g.table)}</li>`:''}</ul></div>
+    ${g.notes?`<p class="note">📝 ${esc(g.notes)}</p>`:''}
+    <div class="acts">${maps(g)?`<a class="btn ol" href="${esc(maps(g))}" target="_blank" rel="noopener">Maps</a>`:''}${g.gatePass?`<a class="btn ol" href="${esc(g.gatePass)}" target="_blank" rel="noopener">Gate pass</a>`:''}</div>
+    ${g.id?`<div class="rsvp"><button class="btn ${g.rsvp==='yes'?'pri':'ol2'}" type="button" data-a="rsvp" data-g="${esc(g.id)}" data-v="yes" ${st.busy?'disabled':''}>${g.rsvp==='yes'?'Accepted ✓':'Accept'}</button><button class="btn ${g.rsvp==='no'?'dark':'ol2'}" type="button" data-a="rsvp" data-g="${esc(g.id)}" data-v="no" ${st.busy?'disabled':''}>${g.rsvp==='no'?'Declined':'Decline'}</button></div>`:''}
+  </article>`).join(''):'<div class="empty-card">No invitations yet. When the host invites you to a game night, it shows up here and you can accept or decline.</div>'}</section>
+  <section class="sec"><h2>Your record</h2><div class="stats"><div class="stat"><span class="lbl">Games</span><b>${s.played||0}</b></div><div class="stat"><span class="lbl">Total</span><b class="${cls(s.net||0)}">${sgn(s.net||0,cur)}</b></div><div class="stat"><span class="lbl">Up / down</span><b>${s.wins||0} / ${s.losses||0}</b></div><div class="stat"><span class="lbl">Best night</span><b class="${cls(s.best||0)}">${s.best==null?'—':sgn(s.best,cur)}</b></div></div></section>
+  <section id="games" class="sec"><h2>Your games</h2>${me.games.length?me.games.map(g=>{const owe=(g.settle||[]).filter(x=>!x.done);const pay=owe.filter(x=>x.pay).reduce((a,x)=>a+x.amt,0),get=owe.filter(x=>!x.pay).reduce((a,x)=>a+x.amt,0);
+    const tag=g.net==null?'<span class="pill wait">Playing</span>':(g.settle||[]).length?(owe.length?(pay?`<span class="pill no">You pay ${money(pay,g.cur)}</span>`:`<span class="pill wait">You receive ${money(get,g.cur)}</span>`):'<span class="pill ok">Settled ✓</span>'):'';
+    return `<article class="gcard"><div class="ghead"><div><b>${esc(g.name)}</b><span>${dshort(g.date)}${g.venue?' · '+esc(g.venue):''} · ${esc(g.table)}</span></div><b class="net ${cls(g.net||0)}">${g.net==null?'—':sgn(g.net,g.cur)}</b></div>
+    <div class="grid"><div><span class="lbl">Bought in</span><b>${money(g.boughtIn,g.cur)}</b></div><div><span class="lbl">Cash-out</span><b>${g.cashOut==null?'—':money(g.cashOut,g.cur)}</b></div><div><span class="lbl">Result</span><b class="${cls(g.result||0)}">${g.result==null?'—':sgn(g.result,g.cur)}</b></div>${g.expenseShare?`<div><span class="lbl">Shared costs</span><b>${money(-g.expenseShare,g.cur)}</b></div>`:''}</div>
+    ${tag?`<div class="row">${tag}</div>`:''}</article>`}).join(''):'<div class="empty-card">No games played yet.</div>'}</section>
+  <section id="profile" class="sec"><h2>Profile</h2><div class="pcardp"><div><b>${esc(p.name||'')}</b><span>${esc(me.email)} · ${esc(p.phone.replace(/^91/,'+91 '))}</span></div><button class="btn ol2" type="button" data-a="edit2">${st.editing?'Close':'Edit'}</button></div>
+  ${st.editing?`<div class="panel">${profileForm(p)}<p class="hint">Changing your number sends it to the host to confirm again.</p></div>`:''}
+  ${installCard()}
+  <button class="btn ghost out" type="button" data-a="out">Sign out</button></section>
+  ${msg()}
+  <nav class="tabbar" aria-label="Sections"><a href="#invites"><span class="ic">✉️</span>Invites${newInv?`<i>${newInv}</i>`:''}</a><a href="#games"><span class="ic">🃏</span>Games</a><a href="#profile"><span class="ic">👤</span>Profile</a></nav>`}
+function installCard(){const I=window.LPInstall;if(!I||I.standalone())return '';return `<div class="getapp"><img src="icon-192.png" alt="" width="52" height="52"><div><b>Get the Lucky Poker app</b><span>Add it to your Home Screen for one-tap access.</span></div><button class="btn pri" type="button" data-a="install">Add</button></div>`}
 const pwField=(id,label,ac)=>`<label class="f">${label}<span class="pw"><input id="${id}" type="password" autocomplete="${ac}" minlength="8" required><button type="button" class="eye" data-a="eye" data-for="${id}" aria-label="Show password">Show</button></span></label>`;
 function authView(){const busy=st.busy,m=st.mode,s2=st.step;
   if(m==='login')return `<h1>Sign in</h1><p class="hint">Sign in with the email and password you created.</p>
@@ -203,9 +267,12 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-a]')
   if(a==='step'){st.step=b.dataset.s;st.msg='';render()}
   if(a==='eye'){const i=document.getElementById(b.dataset.for);if(i){const show=i.type==='password';i.type=show?'text':'password';b.textContent=show?'Hide':'Show'}return}
   if(a==='resend'){st.busy=true;render();try{await api({action:'pStart',email:st.email,purpose:st.mode});st.msg='A new code is on its way.';st.err=false}catch(err){st.msg=errText(err);st.err=true}st.busy=false;render()}
+  if(a==='install'){window.LPInstall&&window.LPInstall.open();return}
   if(a==='refresh'){st.msg='';await load()}
+  if(a==='rsvp'){if(st.busy)return;st.busy=true;render();try{const j=await api({action:'pRsvp',gameId:b.dataset.g,answer:b.dataset.v});st.me=j.me;st.msg=b.dataset.v==='yes'?'You accepted. See you at the table!':'Thanks for letting the host know.';st.err=false}catch(err){st.msg=err.error==='not_invited'?'This invitation is no longer open.':errText(err);st.err=true}st.busy=false;render()}
   if(a==='edit'||a==='edit2'){st.editing=!st.editing;render()}
   if(a==='out'){try{await api({action:'pSignOut'})}catch(err){}st.token=null;st.me=null;st.step='email';st.msg='';save();location.href='./'}});
+document.addEventListener('lp-install-ready',()=>render());
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&st.token)load()});
 $('#logo').innerHTML=fanArt('m',false,'mark')+ribbonWord('r');
 if(!st.token&&!/#(signup|reset)/.test(location.hash)){location.replace('./');}
