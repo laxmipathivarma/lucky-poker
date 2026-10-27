@@ -926,6 +926,18 @@ function summary(g,c){const L=[];L.push(`♠ NamMane — ${g.name}`);L.push(when
   const T=liveTransfers(g);if(T.length){L.push('');L.push('Settle up:');T.forEach(t=>L.push(`• ${pName(g,t.from)} pays ${pName(g,t.to)} ${money(t.amt,g)}${t.done?' ✅':''}`))}
   return L.join('\n')}
 
+function allPlayers(){const m=new Map();Object.values(S.games).forEach(g=>{if(g.sample)return;
+    g.players.forEach(p=>{const k=p.phone?waNum(p.phone):p.name.trim().toLowerCase();if(!k)return;const e=m.get(k)||{name:p.name,phone:p.phone||'',_gids:new Set()};if(!p.phone&&e.phone){}else if(p.phone)e.phone=p.phone;e.name=p.name;e._gids.add(g.id);m.set(k,e)});
+    (g.invitees||[]).forEach(p=>{const k=p.phone?waNum(p.phone):p.name.trim().toLowerCase();if(!k)return;if(!m.has(k))m.set(k,{name:p.name,phone:p.phone||'',_gids:new Set()})})});
+  return [...m.values()].map(p=>({name:p.name,phone:p.phone,games:p._gids.size})).sort((a,b)=>a.name.localeCompare(b.name))}
+function playersPanel(){const ps=allPlayers();const link=location.origin+location.pathname.replace(/[^/]*$/,'')+'player.html';
+  const showAdd=ui.addingPlayer;
+  return `<section class="panel">
+  <h2>Players <span class="tag live">${ps.length}</span></h2>
+  <p class="hint">Everyone who has played or been invited across all games. Add someone here to include them in future games.</p>
+  ${ps.length?`<div class="list">${ps.map(p=>`<div class="li"><div class="main"><div class="pay">${esc(p.name)}</div><div class="sub">${p.phone?'+'+esc(waNum(p.phone)):'No number'} · ${p.games} game${p.games!==1?'s':''}</div></div>${p.phone?`<a class="btn" href="${esc(waLink(p.phone,'♠ NamMane\nJoin our group on NamMane to see your games, tables and upcoming events:\n'+link+'\nSign up with your email, then add the mobile number I have for you.'))}" target="_blank" rel="noopener" title="Send join link on WhatsApp">Join link</a>`:''}</div>`).join('')}</div>`:'<p class="empty">No players yet. Create a game and add players, or add them here.</p>'}
+  ${showAdd?`<form id="rosterAdd" class="row" style="margin-top:8px"><input id="rpName" class="grow" type="text" placeholder="Name" aria-label="Player name" required autocomplete="off"><input id="rpPhone" class="grow" type="tel" placeholder="Phone (with country code)" aria-label="Phone number" autocomplete="off"><button class="btn pri" type="submit">Add</button><button class="btn ghost" type="button" data-act="cancelAddRoster">Cancel</button></form>`:`<div class="row" style="margin-top:8px"><button class="btn" type="button" data-act="addRosterOpen">+ Add player</button></div>`}
+</section>`}
 function gamesView(){const gs=Object.values(S.games).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.createdAt-a.createdAt));
   const lb={};gs.filter(g=>!g.sample).forEach(g=>{const c=calc(g);c.rows.forEach(r=>{if(r.final==null)return;const k=r.p.name.trim().toLowerCase();lb[k]=lb[k]||{name:r.p.name.trim(),net:0,games:0,best:-Infinity};lb[k].net+=r.final;lb[k].games++;lb[k].best=Math.max(lb[k].best,r.final)})});
   const lbs=Object.values(lb).sort((a,b)=>b.net-a.net);
@@ -942,6 +954,7 @@ function gamesView(){const gs=Object.values(S.games).sort((a,b)=>(b.date||'').lo
   ${lbs.length?`<div class="tscroll"><table class="t"><thead><tr><th>#</th><th>Player</th><th class="r">Games</th><th class="r">Best night</th><th class="r">Total</th></tr></thead><tbody>${lbs.map((p,i)=>`<tr><td class="mut num">${i+1}</td><td>${esc(p.name)}</td><td class="r num">${p.games}</td><td class="r num ${cls(p.best)}">${sgn(p.best,gs[0])}</td><td class="r num pay ${cls(p.net)}">${sgn(p.net,gs[0])}</td></tr>`).join('')}</tbody></table></div>`:'<p class="empty">Standings appear once players cash out.</p>'}
 </section>
 </div>
+${playersPanel()}
 ${accessPanel()}
 ${bookPanel('games')}
 <section class="panel">
@@ -990,6 +1003,8 @@ document.addEventListener('click',e=>{
     case 'seatInvitee':case 'seatAll':{const x=S.games[t.dataset.g];if(!x)break;norm(x);const atT=new Set(x.players.map(p=>waNum(p.phone)).filter(Boolean));
       const pick=(x.invitees||[]).filter(v=>rsvpOf(x,v.phone)==='yes'&&!atT.has(waNum(v.phone))&&(a==='seatAll'||('i:'+v.id)===t.dataset.k));
       pick.forEach(v=>x.players.push({id:'p'+nid(),table:x.tables[0].id,name:v.name,phone:v.phone,buyins:[],out:null}));touch(x);toast(pick.length===1?pick[0].name+' added to '+x.tables[0].name:pick.length+' players added to '+x.tables[0].name,false);break}
+    case 'addRosterOpen':ui.addingPlayer=true;render();setTimeout(()=>{const i=$('#rpName');i&&i.focus()},30);return;
+    case 'cancelAddRoster':ui.addingPlayer=false;break;
     case 'hardResetOpen':ui.reset={};render();setTimeout(()=>{const i=$('#hrPin');i&&i.focus()},30);return;
     case 'hardResetCancel':ui.reset=null;break;
     case 'pickTable':ui.table=t.dataset.t;ui.closing=null;break;
@@ -1049,6 +1064,13 @@ document.addEventListener('change',e=>{const t=e.target,g=G();
 });
 document.addEventListener('input',e=>{const t=e.target;if(t.id==='ngName')t.dataset.dirty='1';if(t.id==='ngDate'&&t.value){const n=$('#ngName');if(n&&!n.dataset.dirty)n.value=autoName(t.value)}});
 document.addEventListener('submit',e=>{e.preventDefault();wake();const f=e.target,g=G();
+  if(f.id==='rosterAdd'){const n=$('#rpName').value.trim(),ph=$('#rpPhone').value.trim();if(!n){toast('Enter a name',false);return}
+    /* check if player already exists across all games */
+    const existing=allPlayers();const nk=ph?waNum(ph):n.toLowerCase();if(existing.some(p=>(p.phone&&waNum(p.phone)===nk)||(!ph&&p.name.trim().toLowerCase()===n.toLowerCase()))){toast(n+' is already in your players',false);return}
+    /* add to the most recent game's invitee list so they persist */
+    const rg=Object.values(S.games).filter(x=>!x.sample).sort((a,b)=>b.createdAt-a.createdAt);const tg=rg[0]||G();
+    if(tg){snap();tg.invitees=tg.invitees||[];tg.invitees.push({id:nid(),name:n,phone:ph});touch(tg)}
+    ui.addingPlayer=false;render();toast(n+' added to players',true);return}
   if(f.id==='hardReset'){doHardReset($('#hrPin').value.trim());return}
   if(f.id==='invAdd'){const n=$('#iaName').value.trim(),ph=$('#iaPhone').value.trim();if(!n){toast('Enter a name',false);return}snap();g.invitees=g.invitees||[];g.invitees.push({id:nid(),name:n,phone:ph});touch(g);render();toast(n+' invited',true);return}
   if(f.id==='playerLogin'){playerLogin($('#plEmail').value.trim().toLowerCase(),$('#plPass').value);return}
