@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b3324">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lucky Poker">
+<title>Lucky Poker · Player</title>
+<link rel="manifest" href="player.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Player app: felt header, ivory card panels, same Royal Fan look as the host app */
+:root{
+  --felt:#16603f;--felt-deep:#062418;--bg:#f3ecda;--surface:#fbf7ec;--sunk:#efe7d3;--ink:#1c1813;--muted:#6a5e47;--line:#e2d6b8;
+  --gold:#d4a73a;--gold-hi:#f6d67a;--gold-line:rgb(212 167 58 / .55);--accent:#b8281d;--accent-hi:#d8412f;--accent-lo:#8f1a13;--accent-ink:#fff8ea;
+  --up:#17703f;--down:#b3261e;--warn:#7f5600;--warn-bg:#fff0cc;--ok-bg:#e2f0e3;--cream:#f4efe2;
+  --f-display:"Big Shoulders Display","Arial Narrow",system-ui,sans-serif;--f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:14px;--lift:0 2px 3px rgb(0 0 0 / .18),0 14px 30px rgb(0 0 0 / .32);
+  color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)
+}
+@media (prefers-color-scheme:dark){:root{--bg:#0c1a13;--surface:#12261c;--sunk:#0e1f17;--ink:#efe7d2;--muted:#a8b6a6;--line:#2b4537;--up:#5fd197;--down:#ff8a7a;--warn:#f0c255;--warn-bg:#33280c;--ok-bg:#163a27;color-scheme:dark}}
+*{box-sizing:border-box}
+html{background:var(--felt-deep)}
+body{margin:0;min-height:100vh;font-family:var(--f-body);font-size:15px;line-height:1.45;color:var(--ink);background:radial-gradient(ellipse 130% 60% at 50% 0%,#1f7a53 0%,var(--felt) 38%,var(--felt-deep) 100%) fixed}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:#0a3324}
+button,input{font:inherit;color:inherit}
+.wrap{max-width:860px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:linear-gradient(180deg,#0c3d2a 0%,#082c1e 100%);border-bottom:1px solid var(--gold-line);color:var(--cream)}
+header .wrap{display:flex;align-items:center;gap:10px;padding-block:8px}
+.mark{width:66px;height:46px;filter:drop-shadow(0 4px 5px rgb(0 0 0 / .35))}
+.ribbon{width:160px;height:auto;filter:drop-shadow(0 3px 4px rgb(0 0 0 / .4))}
+header .who{margin-left:auto;font-size:13px;color:#c9d6cc;text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis}
+main{padding-block:20px 60px;display:flex;flex-direction:column;gap:16px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:inset 0 0 0 5px var(--surface),inset 0 0 0 6px var(--gold-line),var(--lift);padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+h1,h2{margin:0;font-family:var(--f-display);font-weight:800;letter-spacing:.03em;text-wrap:balance}
+h1{font-size:30px}h2{font-size:23px;display:flex;align-items:center;gap:10px}
+h2::before{content:"";width:9px;height:9px;flex-shrink:0;background:var(--accent);transform:rotate(45deg);border-radius:1px}
+.hint{margin:0;color:var(--muted);font-size:14px;max-width:62ch}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+input{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 12px;min-height:46px;width:100%;font-size:16px;text-transform:none;letter-spacing:0;font-weight:400}
+input:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:1px solid var(--line);background:linear-gradient(var(--surface),var(--sunk));border-radius:10px;padding:10px 16px;min-height:46px;font-weight:600;cursor:pointer;text-decoration:none;color:var(--ink);display:inline-flex;align-items:center;justify-content:center}
+.btn.pri{background:linear-gradient(var(--accent-hi),var(--accent) 55%,var(--accent-lo));border-color:var(--accent-lo);color:var(--accent-ink)}
+.btn.ghost{background:none;border-color:transparent;color:var(--muted)}
+.btn[disabled]{opacity:.55}
+.msg{border-radius:10px;padding:10px 12px;font-size:14px}
+.msg.err{background:var(--warn-bg);color:var(--ink)}
+.msg.ok{background:var(--ok-bg)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;box-shadow:var(--lift)}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.stat b{font-size:22px;font-variant-numeric:tabular-nums}
+.up{color:var(--up)}.down{color:var(--down)}.mut{color:var(--muted)}
+.inv{border-radius:12px;background:radial-gradient(circle at 30% 30%,#1d6b49 0%,#062016 80%);color:var(--cream);padding:16px;display:flex;flex-direction:column;gap:6px;border:1px solid var(--gold-line)}
+.inv .k{font-family:var(--f-display);font-size:13px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-hi)}
+.inv b{font-family:var(--f-display);font-size:26px;line-height:1.05}
+.inv .l{font-size:14px;color:#e8e1cd}
+.inv .l span{display:inline-block;min-width:68px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#a9bdb1}
+.inv .btn{background:transparent;border-color:rgb(242 193 78 / .6);color:#f6d684;min-height:40px}
+.game{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:8px}
+.game:first-of-type{border-top:0;padding-top:0}
+.ghead{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.ghead b{font-family:var(--f-display);font-size:20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.grid div{background:var(--bg);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column}
+.grid b{font-variant-numeric:tabular-nums}
+.tag{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-radius:20px;padding:3px 9px;background:var(--sunk);color:var(--muted)}
+.tag.ok{background:var(--ok-bg);color:var(--up)}
+.tag.due{background:var(--warn-bg);color:var(--warn)}
+.hero{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;color:var(--cream);padding-block:6px}
+.hero svg{width:min(260px,70%);height:auto}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><span id="logo" style="display:flex;align-items:center;gap:2px"></span><span class="who" id="who"></span></div></header>
+<main class="wrap" id="app"><section class="panel"><p class="hint">Loading…</p></section></main>
+<script src="config.js"></script>
+<script>
+(function(){
+const SPADE='M0 -30 C8 -18 26 -10 26 4 C26 14 16 19 8 15 C5 13 3 11 2 9 C3 17 6 22 10 26 H-10 C-6 22 -3 17 -2 9 C-3 11 -5 13 -8 15 C-16 19 -26 14 -26 4 C-26 -10 -8 -18 0 -30 Z';
+const HEART='M0 26 C-4 20 -26 8 -26 -8 C-26 -20 -12 -26 0 -14 C12 -26 26 -20 26 -8 C26 8 4 20 0 26 Z';
+const SPARK='M0 -14 Q2 -2 14 0 Q2 2 0 14 Q-2 2 -14 0 Q-2 -2 0 -14 Z';
+function goldGrad(id){return `<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff1bf"/><stop offset=".5" stop-color="#f2c14e"/><stop offset="1" stop-color="#a8700f"/></linearGradient>`}
+/* The Royal Fan logo: ace of spades and ace of hearts fanned behind a chip stack; full adds the ribbon and sparkles */
+function fanArt(p,full,cls){
+  const defs=`<defs><filter id="${p}blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8"/></filter>
+<linearGradient id="${p}paper" x1="0" y1="0" x2=".3" y2="1"><stop offset="0" stop-color="#fffdf6"/><stop offset="1" stop-color="#ece2cb"/></linearGradient>${goldGrad(p+'gold')}
+<linearGradient id="${p}rib" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e5503f"/><stop offset=".5" stop-color="#c3322a"/><stop offset="1" stop-color="#8f1a13"/></linearGradient>
+<linearGradient id="${p}side" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000" stop-opacity=".55"/><stop offset=".3" stop-color="#fff" stop-opacity=".16"/><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".6"/></linearGradient>
+<linearGradient id="${p}top" x1="0" y1="0" x2=".35" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".38"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".28"/></linearGradient>
+<path id="${p}spade" d="${SPADE}"/><path id="${p}heart" d="${HEART}"/>
+<g id="${p}chip"><path d="M-70 0 V16 A70 26 0 0 0 70 16 V0 Z" fill="currentColor"/><path d="M-70 0 V16 A70 26 0 0 0 70 16 V0 Z" fill="#000" opacity=".3"/><path d="M-70 8 A70 26 0 0 0 70 8" fill="none" stroke="#f4efe2" stroke-width="13" stroke-dasharray="12 17"/><path d="M-70 0 V16 A70 26 0 0 0 70 16 V0 Z" fill="url(#${p}side)"/><ellipse rx="70" ry="26" fill="currentColor"/><ellipse rx="63" ry="23" fill="none" stroke="#f4efe2" stroke-width="8" stroke-dasharray="13 16"/><ellipse rx="44" ry="16" fill="none" stroke="#f4efe2" stroke-width="1.6" opacity=".85"/><ellipse rx="40" ry="14.5" fill="#000" opacity=".18"/><ellipse rx="70" ry="26" fill="url(#${p}top)"/></g></defs>`;
+  const card=(x,rot,suit,col,shine)=>`<g transform="translate(${x} 46) rotate(${rot} 75 210)"><rect x="6" y="10" width="150" height="210" rx="14" fill="#000" opacity=".45" filter="url(#${p}blur)"/><rect width="150" height="210" rx="14" fill="url(#${p}paper)" stroke="#c9bd9c" stroke-width="1.2"/><rect x="8" y="8" width="134" height="194" rx="9" fill="none" stroke="#d2a73c" stroke-width="1.5" opacity=".7"/><text x="20" y="40" font-family="Georgia,serif" font-weight="700" font-size="28" fill="${col}">A</text><use href="#${p}${suit}" fill="${col}" transform="translate(29 62) scale(.4)"/><use href="#${p}${suit}" fill="#000" opacity=".25" transform="translate(78 117) scale(1.55)"/><use href="#${p}${suit}" fill="${col}" transform="translate(75 113) scale(1.55)"/>${shine}</g>`;
+  let body=`<ellipse cx="225" cy="300" rx="170" ry="26" fill="#000" opacity=".5" filter="url(#${p}blur)"/>`
+   +card(140,-15,'spade','#16211b','<path d="M60 84 C64 78 70 74 74 70" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".35"/>')
+   +card(150,13,'heart','#c3322a','<ellipse cx="58" cy="100" rx="9" ry="5" fill="#fff" opacity=".35" transform="rotate(-35 58 100)"/>')
+   +`<use href="#${p}chip" x="330" y="272" color="#25292b"/><use href="#${p}chip" x="334" y="256" color="#25292b"/><use href="#${p}chip" x="328" y="240" color="#c9372c"/><g transform="translate(328 240) scale(.95 .36)"><use href="#${p}spade" fill="#4a1a08" opacity=".7" transform="translate(0 5)"/><use href="#${p}spade" fill="url(#${p}gold)" stroke="#7a4a08" stroke-width="1.4"/></g><use href="#${p}chip" x="108" y="292" color="#16804f"/>`;
+  if(full)body+=`<path d="M18 344 L78 336 L78 394 L18 402 L40 372 Z" fill="#7e140e"/><path d="M422 344 L362 336 L362 394 L422 402 L400 372 Z" fill="#7e140e"/><path d="M62 330 L78 336 L78 345 Z" fill="#4a0b07"/><path d="M378 330 L362 336 L362 345 Z" fill="#4a0b07"/><path d="M62 330 Q220 362 378 330 L378 386 Q220 418 62 386 Z" fill="url(#${p}rib)"/><path d="M62 337 Q220 369 378 337" fill="none" stroke="url(#${p}gold)" stroke-width="2.5"/><path d="M62 379 Q220 411 378 379" fill="none" stroke="url(#${p}gold)" stroke-width="2.5"/><path id="${p}tp" d="M72 371 Q220 403 368 371" fill="none"/><text font-family="Big Shoulders Display, Arial Narrow, sans-serif" font-weight="800" font-size="36" fill="#4a0b07" transform="translate(0 2)"><textPath href="#${p}tp" startOffset="18" textLength="260" lengthAdjust="spacingAndGlyphs">LUCKY POKER</textPath></text><text font-family="Big Shoulders Display, Arial Narrow, sans-serif" font-weight="800" font-size="36" fill="#fbeed2"><textPath href="#${p}tp" startOffset="18" textLength="260" lengthAdjust="spacingAndGlyphs">LUCKY POKER</textPath></text><g fill="#f6cf6a"><path transform="translate(96 72)" d="${SPARK}"/><path transform="translate(370 96) scale(.7)" d="${SPARK}"/><path transform="translate(392 168) scale(.45)" d="${SPARK}"/></g>`;
+  const vb=full?'0 0 440 420':'30 50 380 272';
+  const a=full?'role="img" aria-label="Lucky Poker: ace of spades and ace of hearts fanned behind a stack of chips, with a red ribbon"':'aria-hidden="true"';
+  return `<svg class="${cls}" viewBox="${vb}" ${a}>${defs}${body}</svg>`}
+/* Ribbon wordmark used beside the logo in the header */
+function ribbonWord(p){return `<svg class="ribbon" viewBox="0 0 300 80" role="img" aria-label="Lucky Poker"><defs>${goldGrad(p+'gold')}<linearGradient id="${p}rib" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e5503f"/><stop offset=".5" stop-color="#c3322a"/><stop offset="1" stop-color="#8f1a13"/></linearGradient></defs>
+<path d="M6 22 L40 17 L40 67 L6 72 L20 45 Z" fill="#7e140e"/><path d="M294 22 L260 17 L260 67 L294 72 L280 45 Z" fill="#7e140e"/><path d="M28 12 L40 17 L40 25 Z" fill="#4a0b07"/><path d="M272 12 L260 17 L260 25 Z" fill="#4a0b07"/>
+<path d="M28 12 Q150 26 272 12 L272 60 Q150 74 28 60 Z" fill="url(#${p}rib)"/><path d="M28 17 Q150 31 272 17" fill="none" stroke="url(#${p}gold)" stroke-width="2"/><path d="M28 55 Q150 69 272 55" fill="none" stroke="url(#${p}gold)" stroke-width="2"/>
+<g font-family="Big Shoulders Display, Arial Narrow, sans-serif" font-weight="800" font-size="30"><text x="52" y="51" textLength="196" lengthAdjust="spacingAndGlyphs" fill="#4a0b07">LUCKY POKER</text><text x="52" y="49" textLength="196" lengthAdjust="spacingAndGlyphs" fill="#fbeed2">LUCKY POKER</text></g></svg>`}
+
+const API=window.LP_API;const TK='luckypoker.player.v1';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let st={token:null,email:'',me:null,step:'email',busy:false,msg:'',err:false};
+try{const v=JSON.parse(localStorage.getItem(TK)||'null');if(v){st.token=v.token;st.email=v.email||''}}catch(e){}
+const save=()=>{try{localStorage.setItem(TK,JSON.stringify({token:st.token,email:st.email}))}catch(e){}};
+async function api(body){const r=await fetch(API,{method:'POST',body:JSON.stringify(Object.assign({token:st.token},body)),redirect:'follow'});const j=await r.json();if(j.error)throw j;return j}
+const errText=e=>({bad_email:'Enter a valid email address.',too_many:'Too many codes asked for. Please wait an hour and try again.',code_expired:'That code has expired. Ask for a new one.',bad_code:'That code is not right. Check the email and try again.',bad_phone:'Enter your 10-digit mobile number.',signed_out:'Please sign in again.'})[e&&e.error]||'Something went wrong. Check your connection and try again.';
+const money=(n,c)=>(n<0?'−':'')+(c||'₹')+Math.abs(Math.round(n*100)/100).toLocaleString('en-IN',{maximumFractionDigits:2});
+const sgn=(n,c)=>(n>0.004?'+':'')+money(n,c);
+const cls=n=>n>0.004?'up':n<-0.004?'down':'mut';
+const dfull=d=>new Date(d+'T12:00').toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+const dshort=d=>new Date(d+'T12:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+const t12=t=>{if(!t)return '';const [h,m]=t.split(':');const d=new Date();d.setHours(+h,+m);return d.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'})};
+const maps=g=>g.maps||(g.address||g.venue?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(g.address||g.venue):'');
+const msg=()=>st.msg?`<div class="msg ${st.err?'err':'ok'}">${esc(st.msg)}</div>`:'';
+
+function render(){$('#who').textContent=st.token&&st.email?st.email:'';const a=$('#app');
+  if(!API){a.innerHTML=`<section class="panel"><p class="hint">Player sign-in is being set up. Please check back soon.</p></section>`;return}
+  if(!st.token){a.innerHTML=`<section class="hero">${fanArt('h',true,'')}<p style="margin:0;color:#e8e0c8">Your games, tables and invites from Lucky Poker.</p></section>
+  <section class="panel"><h1>Sign in</h1>
+  ${st.step==='email'?`<p class="hint">Enter your email and we'll send you a 6-digit sign-in code.</p>
+  <form id="fEmail" class="row"><label class="f" style="flex:1;min-width:220px">Email<input id="em" type="email" inputmode="email" autocomplete="email" value="${esc(st.email)}" required></label><button class="btn pri" type="submit" ${st.busy?'disabled':''}>${st.busy?'Sending…':'Send code'}</button></form>`
+  :`<p class="hint">We sent a code to <b>${esc(st.email)}</b>. It works for 10 minutes. Check spam if you can't find it.</p>
+  <form id="fCode" class="row"><label class="f" style="flex:1;min-width:160px">Code<input id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required></label><button class="btn pri" type="submit" ${st.busy?'disabled':''}>${st.busy?'Checking…':'Sign in'}</button></form>
+  <div class="row"><button class="btn ghost" type="button" data-a="back">Use a different email</button><button class="btn ghost" type="button" data-a="resend">Send a new code</button></div>`}
+  ${msg()}</section>`;return}
+  const me=st.me;
+  if(!me){a.innerHTML=`<section class="panel"><p class="hint">Loading your games…</p>${msg()}</section>`;return}
+  const p=me.profile;
+  if(!p||p.status==='rejected'){a.innerHTML=`<section class="panel"><h1>Your profile</h1>
+  <p class="hint">${p&&p.status==='rejected'?'The host could not match this number to a player. Check the number and save again, or ask the host.':'Add the mobile number the host has for you. Once the host confirms it, you will see your tables, upcoming games and track record.'}</p>
+  ${profileForm(p)}${msg()}<div class="row"><button class="btn ghost" type="button" data-a="out">Sign out</button></div></section>`;return}
+  if(p.status==='pending'){a.innerHTML=`<section class="panel"><h1>Waiting for the host</h1>
+  <p class="hint">Thanks, ${esc(p.name||'player')}. Your number <b>${esc(p.phone.replace(/^91/,'+91 '))}</b> has been sent to the host to confirm. Once they approve it, your games appear here. Pull to refresh or tap below.</p>
+  <div class="row"><button class="btn pri" type="button" data-a="refresh">Check again</button><button class="btn ghost" type="button" data-a="edit">Change number</button><button class="btn ghost" type="button" data-a="out">Sign out</button></div>${msg()}
+  ${st.editing?profileForm(p):''}</section>`;return}
+  const s=me.stats||{};const cur=(me.games[0]||me.upcoming[0]||{}).cur;
+  a.innerHTML=`<section class="panel" style="gap:6px"><h1>Hi ${esc(p.name||'there')}</h1><p class="hint">Only you can see this page. Other players' details are never shown.</p></section>
+  <div class="stats"><div class="stat"><span class="lbl">Games played</span><b>${s.played||0}</b></div><div class="stat"><span class="lbl">Total result</span><b class="${cls(s.net||0)}">${sgn(s.net||0,cur)}</b></div><div class="stat"><span class="lbl">Up / down nights</span><b>${s.wins||0} / ${s.losses||0}</b></div><div class="stat"><span class="lbl">Best night</span><b class="${cls(s.best||0)}">${s.best==null?'—':sgn(s.best,cur)}</b></div></div>
+  <section class="panel"><h2>Upcoming games</h2>${me.upcoming.length?me.upcoming.map(g=>`<div class="inv"><span class="k">Game night at home</span><b>${esc(g.name)}</b>
+    <div class="l"><span>Date</span>${dfull(g.date)}</div>${g.time?`<div class="l"><span>Time</span>${t12(g.time)}</div>`:''}${g.venue?`<div class="l"><span>Venue</span>${esc(g.venue)}</div>`:''}${g.address?`<div class="l"><span>Address</span>${esc(g.address)}</div>`:''}<div class="l"><span>Your table</span>${esc(g.table)}</div>${g.notes?`<div class="l"><span>Note</span>${esc(g.notes)}</div>`:''}
+    <div class="row" style="margin-top:6px">${maps(g)?`<a class="btn" href="${esc(maps(g))}" target="_blank" rel="noopener">Google Maps</a>`:''}${g.gatePass?`<a class="btn" href="${esc(g.gatePass)}" target="_blank" rel="noopener">Gate pass</a>`:''}</div></div>`).join(''):'<p class="hint">No upcoming games yet. When the host adds you to the next game, it shows up here.</p>'}</section>
+  <section class="panel"><h2>Your games</h2>${me.games.length?me.games.map(g=>{const owe=(g.settle||[]).filter(x=>!x.done);const pay=owe.filter(x=>x.pay).reduce((a,x)=>a+x.amt,0),get=owe.filter(x=>!x.pay).reduce((a,x)=>a+x.amt,0);
+    const tag=g.net==null?'<span class="tag">Playing</span>':(g.settle||[]).length?(owe.length?(pay?`<span class="tag due">You pay ${money(pay,g.cur)}</span>`:`<span class="tag due">You receive ${money(get,g.cur)}</span>`):'<span class="tag ok">Settled ✓</span>'):'';
+    return `<div class="game"><div class="ghead"><b>${esc(g.name)}</b><span class="mut" style="font-size:13px">${dshort(g.date)}${g.venue?' · '+esc(g.venue):''} · ${esc(g.table)}</span></div>
+    <div class="grid"><div><span class="lbl">Bought in</span><b>${money(g.boughtIn,g.cur)}</b></div><div><span class="lbl">Cash-out</span><b>${g.cashOut==null?'—':money(g.cashOut,g.cur)}</b></div><div><span class="lbl">Result</span><b class="${cls(g.result||0)}">${g.result==null?'—':sgn(g.result,g.cur)}</b></div>${g.expenseShare?`<div><span class="lbl">Shared costs</span><b>${money(-g.expenseShare,g.cur)}</b></div>`:''}<div><span class="lbl">Net</span><b class="${cls(g.net||0)}">${g.net==null?'—':sgn(g.net,g.cur)}</b></div></div>
+    <div class="row">${tag}</div></div>`}).join(''):'<p class="hint">No games yet.</p>'}</section>
+  <div class="row"><button class="btn ghost" type="button" data-a="edit2" style="color:var(--cream)">Edit profile</button><button class="btn ghost" type="button" data-a="out" style="color:var(--cream)">Sign out</button></div>
+  ${st.editing?`<section class="panel">${profileForm(p)}<p class="hint">Changing your number sends it to the host to confirm again.</p>${msg()}</section>`:msg()}`}
+function profileForm(p){return `<form id="fProf" style="display:flex;flex-direction:column;gap:10px"><label class="f">Your name<input id="pn" autocomplete="name" value="${esc(p&&p.name||'')}" required></label><label class="f">Mobile number<input id="pp" type="tel" inputmode="tel" autocomplete="tel" placeholder="10-digit mobile" value="${esc(p&&p.phone?p.phone.replace(/^91/,''):'')}" required></label><div class="row"><button class="btn pri" type="submit" ${st.busy?'disabled':''}>${st.busy?'Saving…':'Save profile'}</button></div></form>`}
+
+async function load(){try{const j=await api({action:'pMe'});st.me=j.me;st.msg=''}catch(e){if(e.error==='signed_out'){st.token=null;st.me=null;save()}st.msg=errText(e);st.err=true}render()}
+document.addEventListener('submit',async e=>{e.preventDefault();const f=e.target;if(st.busy)return;st.busy=true;st.msg='';render();
+  try{
+    if(f.id==='fEmail'){st.email=$('#em').value.trim().toLowerCase();await api({action:'pStart',email:st.email});st.step='code';st.msg='';save()}
+    else if(f.id==='fCode'){const j=await api({action:'pVerify',email:st.email,code:$('#code').value});st.token=j.token;st.step='email';save();st.busy=false;await load();return}
+    else if(f.id==='fProf'){const j=await api({action:'pProfile',name:$('#pn').value.trim(),phone:$('#pp').value});st.me=j.me;st.editing=false;st.msg='Profile saved.';st.err=false}
+  }catch(err){st.msg=errText(err);st.err=true;if(err.error==='signed_out'){st.token=null;save()}}
+  st.busy=false;render()});
+// keep the typed values when a re-render happens mid-request
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;
+  if(a==='back'){st.step='email';st.msg='';render()}
+  if(a==='resend'){st.busy=true;render();try{await api({action:'pStart',email:st.email});st.msg='A new code is on its way.';st.err=false}catch(err){st.msg=errText(err);st.err=true}st.busy=false;render()}
+  if(a==='refresh'){st.msg='';await load()}
+  if(a==='edit'||a==='edit2'){st.editing=!st.editing;render()}
+  if(a==='out'){try{await api({action:'pSignOut'})}catch(err){}st.token=null;st.me=null;st.step='email';st.msg='';save();render()}});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&st.token)load()});
+$('#logo').innerHTML=fanArt('m',false,'mark')+ribbonWord('r');
+render();if(st.token&&API)load();
+})();
+</script>
+</body>
+</html>

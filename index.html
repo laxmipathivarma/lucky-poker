@@ -298,7 +298,7 @@ async function syncNow(manual,where){if(!syncCfg())return false;if(syncing){clea
   const ids=[...pending];pending.clear();let ok=false;
   try{const games={};ids.forEach(id=>{if(S.games[id])games[id]=S.games[id]});
     const j=await api({action:'save',games,deleted:S.deleted,sheets:sheetPayload()});
-    const changed=mergeRemote(j.data);S.settings.bookUrl=j.sheetUrl;S.settings.bookAt=Date.now();lsSave();setStatus('cloud');ok=true;
+    const changed=mergeRemote(j.data);ui.profiles=j.profiles||ui.profiles;S.settings.bookUrl=j.sheetUrl;S.settings.bookAt=Date.now();lsSave();setStatus('cloud');ok=true;
     if(manual)ui.sheet={busy:null,msg:'Google Sheet updated with all games.',err:false,where};
     if(changed||manual)render();
     if(pending.size){clearTimeout(timer);timer=setTimeout(()=>syncNow(false),1500)}}
@@ -306,7 +306,7 @@ async function syncNow(manual,where){if(!syncCfg())return false;if(syncing){clea
     if(manual||e.error==='bad_key'){ui.sheet={busy:null,msg:syncErr(e),err:true,where:where||'settle'};render()}
     if(e.error!=='bad_key')retryT=setTimeout(()=>syncNow(false),30000)}
   syncing=false;return ok}
-async function cloudLoad(){if(!syncCfg())return;try{const j=await api({action:'load'});const changed=mergeRemote(j.data);S.settings.bookUrl=j.sheetUrl;lsSave();if(changed)render();if(pending.size)syncNow(false);else setStatus('cloud')}catch(e){setStatus(navigator.onLine===false?'offline':'local')}}
+async function cloudLoad(){if(!syncCfg())return;try{const j=await api({action:'load'});const changed=mergeRemote(j.data);const pc=JSON.stringify(j.profiles||[])!==JSON.stringify(ui.profiles||[]);ui.profiles=j.profiles||[];if(pc&&tab==='games')render();S.settings.bookUrl=j.sheetUrl;lsSave();if(changed)render();if(pending.size)syncNow(false);else setStatus('cloud')}catch(e){setStatus(navigator.onLine===false?'offline':'local')}}
 function encodeConn(c){return btoa(unescape(encodeURIComponent(c.url+'|'+c.key))).replace(/=+$/,'')}
 function decodeConn(code){try{code=String(code).trim().replace(/^.*#connect=/,'');const t=decodeURIComponent(escape(atob(code)));const [url,key]=t.split('|');if(/^https:\/\/script\.google(usercontent)?\.com\//.test(url)&&key)return{url,key}}catch(e){}return null}
 async function connectWith(code,where){const c=decodeConn(code);if(!c){ui.sheet={busy:null,msg:'That does not look like a Lucky Poker connection code. Copy the whole code and try again.',err:true,where};render();return}
@@ -652,6 +652,14 @@ ${gs.map(x=>{const open=ui.openSet[x.id]!=null?ui.openSet[x.id]:x.id===S.cur;con
 ${bookPanel('settle')}`}
 const when=t=>new Date(t).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'});
 function sheetMsg(where){const s=ui.sheet;if(!s.msg||s.where!==where)return '';return `<div class="callout ${s.err?'warn':'ok'}">${esc(s.msg)}</div>`}
+function accessPanel(){if(!syncCfg())return '';const ps=(ui.profiles||[]).slice().sort((a,b)=>(a.status==='pending'?0:1)-(b.status==='pending'?0:1)||b.at-a.at);const link=location.origin+location.pathname.replace(/[^/]*$/,'')+'player.html';
+  return `<section class="panel">
+  <h2>Player access</h2>
+  <p class="hint">Players sign in at <b>${esc(link.replace(/^https?:\/\//,''))}</b> with an email code and add their mobile number. Approve a request only when the number belongs to that person; they then see only their own games, tables, upcoming invites and record.</p>
+  <div class="row"><a class="btn" href="${esc(waLink('','♠ Lucky Poker\nSee your games, tables and upcoming game nights here:\n'+link+'\nSign in with your email, then add the mobile number I have for you.'))}" target="_blank" rel="noopener">Share player link on WhatsApp</a></div>
+  <div class="list">${ps.length?ps.map(p=>`<div class="li"><div class="main"><div class="pay">${esc(p.name||'(no name)')} ${p.status==='approved'?'<span class="tag live">Approved</span>':p.status==='rejected'?'<span class="tag out">Declined</span>':'<span class="tag due">Waiting</span>'}</div><div class="sub">${esc(p.email)} · +${esc(p.phone)} · ${p.matched?'number is on your player list':'number not on your player list yet'}</div></div>
+    ${p.status!=='approved'?`<button class="btn pri" type="button" data-act="approveP" data-email="${esc(p.email)}" data-ok="1">Approve</button>`:''}${p.status!=='rejected'?`<button class="btn ghost" type="button" data-act="approveP" data-email="${esc(p.email)}" data-ok="0">${p.status==='approved'?'Remove access':'Decline'}</button>`:''}</div>`).join(''):'<p class="empty">No player sign-ups yet.</p>'}</div>
+</section>`}
 function bookPanel(where){const st=S.settings,busy=ui.sheet.busy,c=syncCfg();
   if(!c)return `<section class="panel">
   <h2>Google Sheet</h2>
@@ -719,6 +727,7 @@ function gamesView(){const gs=Object.values(S.games).sort((a,b)=>(b.date||'').lo
   ${lbs.length?`<div class="tscroll"><table class="t"><thead><tr><th>#</th><th>Player</th><th class="r">Games</th><th class="r">Best night</th><th class="r">Total</th></tr></thead><tbody>${lbs.map((p,i)=>`<tr><td class="mut num">${i+1}</td><td>${esc(p.name)}</td><td class="r num">${p.games}</td><td class="r num ${cls(p.best)}">${sgn(p.best,gs[0])}</td><td class="r num pay ${cls(p.net)}">${sgn(p.net,gs[0])}</td></tr>`).join('')}</tbody></table></div>`:'<p class="empty">Standings appear once players cash out.</p>'}
 </section>
 </div>
+${accessPanel()}
 ${bookPanel('games')}
 <section class="panel">
   <h2>New game</h2>
@@ -769,6 +778,7 @@ document.addEventListener('click',e=>{
       try{navigator.clipboard.writeText(txt).then(done,()=>selectShare())}catch(err){selectShare()}return}
     case 'finish':g.finished=!g.finished;touch(g);if(g.finished&&syncCfg()){(async()=>{const ok=await syncNow(true,'settle');if(ok){ui.sheet.msg='Game finished and saved to the Google Sheet.';render()}})();return}break;
     case 'saveBook':if(!syncCfg()){ui.sheet={busy:null,msg:'Connect your Google Sheet first.',err:true,where:tab==='games'?'games':'settle'};break}syncNow(true,tab==='games'?'games':'settle');return;
+    case 'approveP':{const em=t.dataset.email,okk=t.dataset.ok==='1';(async()=>{try{const j=await api({action:'approve',email:em,ok:okk});ui.profiles=j.profiles||[];toast(okk?'Player approved':'Access removed',false)}catch(e){toast('Could not reach your Google Sheet. Try again.',false)}render()})();return}
     case 'copyConn':{const txt=$('#connTxt').textContent;try{navigator.clipboard.writeText(txt).then(()=>toast('Connection code copied',false),()=>selectEl('#connTxt'))}catch(err){selectEl('#connTxt')}return}
     case 'disconnect':delete S.settings.sync;lsSave();setStatus('local');toast('This device is no longer saving to the Google Sheet',false);break;
     case 'openG':S.cur=t.dataset.id;ui.table=null;ui.closing=null;lsSave();tab='table';break;
