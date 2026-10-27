@@ -289,6 +289,7 @@ function saveSettings(){S.settings.updatedAt=Date.now();lsSave()}
 function touch(g){if(g){g.updatedAt=Date.now();if(!g.sample)pending.add(g.id)}lsSave();if(!syncCfg()){setStatus(lsOk?'local':'unsaved');return}setStatus('saving');clearTimeout(timer);timer=setTimeout(()=>syncNow(false),2500)}
 async function api(body){const c=syncCfg();const r=await fetch(c.url,{method:'POST',body:JSON.stringify(Object.assign({key:c.key},body)),redirect:'follow'});let j;try{j=await r.json()}catch(e){throw{error:'bad_response'}}if(j.error)throw j;return j}
 function mergeRemote(d){if(!d)return false;let changed=false;
+  if(d.resetAt&&d.resetAt>(S.resetAt||0)){S.games={};S.deleted=[];S.cur=null;S.resetAt=d.resetAt;pending.clear();undoStack=[];changed=true}
   (d.deleted||[]).forEach(id=>{if(!S.deleted.includes(id))S.deleted.push(id);if(S.games[id]){delete S.games[id];changed=true}});
   Object.entries(d.games||{}).forEach(([id,g])=>{if(S.deleted.includes(id))return;const l=S.games[id];if(!l||(g.updatedAt||0)>(l.updatedAt||0)){S.games[id]=g;changed=true}});
   Object.values(S.games).forEach(g=>{if(g.sample)return;const rg=(d.games||{})[g.id];if(!rg||(g.updatedAt||0)>(rg.updatedAt||0))pending.add(g.id)});
@@ -482,6 +483,18 @@ function inviteView(g){const m=mapsLink(g);const withPh=g.players;
   <div class="row"><button class="btn" type="button" data-tab="table">Add players on the Table tab</button></div>
 </section>`}
 const buyOpts=g=>(g.buyOpts&&g.buyOpts.length?g.buyOpts:[10000,20000,30000]);
+const RESET_PIN_SHA='cde7febb104c39ca747ac7989a1e8b34';
+async function sha(t){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('lucky-poker:'+t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('').slice(0,32)}
+function hardResetPanel(){if(!ui.reset)return `<section class="panel row" style="justify-content:space-between"><div style="flex:1;min-width:200px"><h2>Hard reset</h2><p class="hint">Erase every game on all your devices and in the Google Sheet, and start fresh. Player accounts stay.</p></div><button class="btn danger" type="button" data-act="hardResetOpen" style="border-color:var(--down)">Hard reset</button></section>`;
+  return `<section class="panel closepanel"><h2>Hard reset</h2>
+  <p class="hint">This permanently erases <b>all games</b>: players, buy-ins, tables, settle-ups and invites, on every device and in the Google Sheet. It cannot be undone. Enter the 4-digit reset code to continue.</p>
+  <form id="hardReset" class="row"><input id="hrPin" class="amt num" type="password" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" autocomplete="off" placeholder="4-digit code" aria-label="Reset code" required style="max-width:160px;font-size:20px;letter-spacing:.4em;text-align:center"><button class="btn pri" type="submit" ${ui.reset.busy?'disabled':''}>${ui.reset.busy?'Erasing…':'Erase everything'}</button><button class="btn ghost" type="button" data-act="hardResetCancel">Cancel</button></form>
+  ${ui.reset.msg?`<div class="callout warn">${esc(ui.reset.msg)}</div>`:''}</section>`}
+async function doHardReset(pin){if((await sha(pin))!==RESET_PIN_SHA){ui.reset={msg:'That code is not right.'};render();return}
+  ui.reset={busy:true};render();
+  try{if(syncCfg()){const j=await api({action:'hardReset'});S.resetAt=(j.data&&j.data.resetAt)||Date.now()}
+    S.games={};S.deleted=[];S.cur=null;pending.clear();undoStack=[];lsSave();ui.reset=null;ui.table=null;tab='games';render();toast('All games erased',false)}
+  catch(e){ui.reset={msg:'Could not reach your Google Sheet, so nothing was erased. Check your connection and try again.'};render()}}
 function curTable(g){norm(g);let t=g.tables.find(x=>x.id===ui.table);if(!t){t=g.tables.find(x=>!x.closed)||g.tables[0];ui.table=t.id}return t}
 function tablesBar(g,t){return `<div class="tablebar" role="group" aria-label="Tables">${g.tables.map(x=>{const st=tableStats(g,x.id);return `<button type="button" class="tbtn" data-act="pickTable" data-t="${x.id}" aria-pressed="${x.id===t.id}"><b>${esc(x.name)}</b><span>${st.ps.length} player${st.ps.length===1?'':'s'}${x.closed?' · Closed':''}</span></button>`}).join('')}<button type="button" class="tbtn add" data-act="addTable">+ Add table</button></div>`}
 function tableResults(g,st){return `<div class="tscroll"><table class="t"><thead><tr><th>Player</th><th class="r">Bought in</th><th class="r">Cash-out</th><th class="r">Result</th></tr></thead>
@@ -539,6 +552,7 @@ ${t.closed?`<section class="panel">
   </div>
 </section>`}
 ${invitePanel(g)}
+${hardResetPanel()}
 ${ps.length?`<div class="players">${ps.map(p=>pcard(g,p)).join('')}</div>`:`<div class="panel emptyRow">${fanArt('e',false,'emptyart')}<p class="empty" style="flex:1;min-width:200px">No players at ${esc(t.name)} yet. Type a name above and tap Add player. Names you have used before are suggested as you type.</p></div>`}`}
 function seg(key,val,pid){return `<span class="seg" role="group">${[['cash','Cash'],['upi','UPI'],['credit','Credit']].map(([k,l])=>`<button type="button" data-act="seg" data-k="${key}" data-v="${k}" ${pid?`data-p="${pid}"`:''} aria-pressed="${val===k}">${l}</button>`).join('')}</span>`}
 function pcard(g,p){const b=sumB(p),done=p.out!=null,res=done?p.out-b:null,editing=ui.editOut===p.id;
@@ -793,6 +807,8 @@ document.addEventListener('click',e=>{
     case 'copyInvite':{const txt=$('#inviteTxt').textContent;try{navigator.clipboard.writeText(txt).then(()=>toast('Invitation copied',false),()=>selectEl('#inviteTxt'))}catch(err){selectEl('#inviteTxt')}return}
     case 'invited':{const p=g.players.find(x=>x.id===pid);if(p){p.invitedAt=Date.now();touch(g);setTimeout(render,600)}return}
     case 'resetInv':snap();g.players.forEach(p=>{delete p.invitedAt});touch(g);toast('Invite list reset',true);break;
+    case 'hardResetOpen':ui.reset={};render();setTimeout(()=>{const i=$('#hrPin');i&&i.focus()},30);return;
+    case 'hardResetCancel':ui.reset=null;break;
     case 'pickTable':ui.table=t.dataset.t;ui.closing=null;break;
     case 'addTable':{snap();norm(g);const n=g.tables.length+1;const nt={id:'t'+nid(),name:'Table '+n,dealer:'',dealerPid:'',closed:false};g.tables.push(nt);ui.table=nt.id;touch(g);toast(nt.name+' added',true);break}
     case 'rmTable':{snap();g.tables=g.tables.filter(x=>x.id!==t.dataset.t);g.rake.forEach(r=>{if(r.table===t.dataset.t)r.table=g.tables[0].id});ui.table=null;touch(g);toast('Table removed',true);break}
@@ -846,6 +862,7 @@ document.addEventListener('change',e=>{const t=e.target,g=G();
 });
 document.addEventListener('input',e=>{const t=e.target;if(t.id==='ngName')t.dataset.dirty='1';if(t.id==='ngDate'&&t.value){const n=$('#ngName');if(n&&!n.dataset.dirty)n.value=autoName(t.value)}});
 document.addEventListener('submit',e=>{e.preventDefault();wake();const f=e.target,g=G();
+  if(f.id==='hardReset'){doHardReset($('#hrPin').value.trim());return}
   if(f.id==='adminLogin'){adminLogin($('#alUser').value.trim(),$('#alPass').value);return}
   if(f.id==='setAdmin'){const u=$('#saUser').value.trim(),pw=$('#saPass').value;if(pw.length<8){toast('Use at least 8 characters for the password',false);return}
     (async()=>{try{await api({action:'setAdmin',user:u,pass:pw});$('#saPass').value='';toast('Admin sign-in saved',false)}catch(e){toast('Could not save. Check your connection and try again.',false)}})();return}

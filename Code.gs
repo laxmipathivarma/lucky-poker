@@ -66,11 +66,16 @@ function admin_(a, req) {
       var games = req.games || {};
       Object.keys(games).forEach(function (id) {
         if (data.deleted.indexOf(id) >= 0) return;
+        if (data.resetAt && (games[id].updatedAt || 0) < data.resetAt) return;
         var cur = data.games[id];
         if (!cur || (games[id].updatedAt || 0) >= (cur.updatedAt || 0)) data.games[id] = games[id];
       });
       file.setContent(JSON.stringify(data));
       if (req.sheets && req.sheets.tabs) writeSheets_(folder, data, req.sheets.tabs);
+      file.setContent(JSON.stringify(data));
+    }
+    if (a === 'hardReset') {
+      resetData_(folder, data);
       file.setContent(JSON.stringify(data));
     }
     if (a === 'approve') {
@@ -81,7 +86,7 @@ function admin_(a, req) {
     var ss = getSheet_(folder);
     return {
       ok: true,
-      data: { games: data.games, deleted: data.deleted },
+      data: { games: data.games, deleted: data.deleted, resetAt: data.resetAt || 0 },
       profiles: profileList_(data),
       sheetUrl: ss.getUrl()
     };
@@ -95,6 +100,31 @@ function profileList_(data) {
     var p = data.profiles[em];
     return { email: em, name: p.name || '', phone: p.phone || '', status: p.status, at: p.at || 0, matched: !!findPlayerName_(data, p.phone) };
   });
+}
+
+/* Hard reset: removes every game (players' profiles and accounts stay). Can also be run from the editor. */
+function resetData_(folder, data) {
+  data.games = {};
+  data.deleted = [];
+  data.resetAt = Date.now();
+  writeSheets_(folder, data, [
+    { key: 'summary', name: 'Summary', header: true, rows: [['Date', 'Day', 'Game', 'Venue', 'Tables', 'Players', 'Total buy-ins', 'Rake', 'Dealer bonus', 'Shared expenses', 'House keeps', 'Status', 'Tab']] },
+    { key: 'players', name: 'All players', header: true, rows: [['Date', 'Game', 'Table', 'Player', 'Phone', 'Bought in', 'On credit', 'Cash-out', 'Poker result', 'Expense share', 'Net for the night']] },
+    { key: 'costs', name: 'Rake & expenses', header: true, rows: [['Date', 'Game', 'Type', 'Item', 'Amount', 'Paid by', 'Covered by']] }
+  ]);
+}
+
+function resetAllGames() {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(25000);
+  try {
+    var folder = getFolder_();
+    var file = getDataFile_(folder);
+    var data = readData_(file);
+    resetData_(folder, data);
+    file.setContent(JSON.stringify(data));
+    Logger.log('All games cleared at ' + new Date(data.resetAt));
+  } finally { lock.releaseLock(); }
 }
 
 /* ---------------- admin sign-in ---------------- */
