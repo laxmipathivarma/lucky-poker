@@ -281,6 +281,19 @@ body.signed-out::before{background:transparent}
 .pill.ok{background:color-mix(in srgb,var(--up) 16%,transparent);color:var(--up)}.pill.no{background:color-mix(in srgb,var(--down) 14%,transparent);color:var(--down)}.pill.wait{background:var(--warn-bg);color:var(--warn)}
 .rcount .pill{border-radius:999px;padding:3px 9px;font-size:12px;font-weight:700}
 .rsv h3{margin:0 0 4px;font-family:var(--f-display);font-size:18px;letter-spacing:.03em}
+/* RSVP donut chart */
+.rsvp-chart{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:12px 0}
+.rsvp-donut{width:80px;height:80px;flex-shrink:0;filter:drop-shadow(0 2px 4px rgb(0 0 0 / .2))}
+.rsvp-donut circle{fill:none;stroke-width:8;stroke-linecap:round;transform-origin:center;transition:stroke-dasharray .4s ease}
+.rsvp-legend{display:flex;flex-direction:column;gap:6px}
+.rsvp-leg{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
+.rsvp-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.rsvp-dot.ok{background:var(--up)}.rsvp-dot.no{background:var(--down)}.rsvp-dot.wait{background:var(--warn)}
+/* email invite */
+.email-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:4px 0}
+.email-row input[type=email]{flex:1;min-width:160px;max-width:260px}
+.channel-btns{display:flex;gap:6px;flex-wrap:wrap}
+.channel-btns .btn{font-size:13px;min-height:34px;padding:4px 12px}
 .ti{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:none}
 /* mobile app style: bottom tab bar on phones */
 @media (max-width:760px){
@@ -631,12 +644,27 @@ function inviteView(g){const m=mapsLink(g);const withPh=g.players;
     return `<p class="hint">WhatsApp opens one chat at a time, so this walks through everyone in order. Send the message, come back, and the button moves to the next person. For one message to a group, use <b>Send on WhatsApp</b> above.</p>
     <div class="prog"><div class="row" style="justify-content:space-between"><span><b class="num">${done.length}</b> of ${ps.length} messaged</span>${done.length?`<button class="btn ghost" type="button" data-act="resetInv">Start over</button>`:''}</div><div class="bar"><i style="width:${Math.round(done.length/ps.length*100)}%"></i></div></div>
     ${next?`<button class="btn pri big-btn" type="button" data-act="previewOneWa" data-k="${esc(next.key)}" data-n="${esc(next.name)}" data-ph="${esc(next.phone)}">${done.length?'Next: ':'Invite all · '}${esc(next.name)} (${done.length+1} of ${ps.length})</button>`:`<div class="callout ok">Everyone has been messaged.</div>`}`})()}
+</section>
+<section class="panel">
+  <h2>📧 Send via Email</h2>
+  <p class="hint">Send a beautiful HTML invitation email. The player can RSVP from the link inside.</p>
+  <form id="emailInvForm" class="email-row">
+    <input id="eiName" type="text" placeholder="Name" autocomplete="off" aria-label="Name" style="max-width:150px">
+    <input id="eiAddr" type="email" placeholder="email@example.com" autocomplete="off" aria-label="Email">
+    <button class="btn pri" type="submit" style="white-space:nowrap">Send invite</button>
+  </form>
+  <div id="emailStatus"></div>
 </section>`}
 function invList(g){const out=[],seen=new Set();(g.invitees||[]).forEach(x=>{const k=waNum(x.phone)||('n:'+x.name.toLowerCase());if(seen.has(k))return;seen.add(k);out.push({key:'i:'+x.id,src:'i',name:x.name,phone:x.phone,invitedAt:x.invitedAt})});
   g.players.forEach(p=>{const k=waNum(p.phone)||('n:'+p.name.toLowerCase());if(seen.has(k))return;seen.add(k);out.push({key:'p:'+p.id,src:'p',name:p.name,phone:p.phone,invitedAt:p.invitedAt})});return out}
 function knownPeople(){const m=new Map();Object.values(S.games).forEach(g=>{if(g.sample)return;g.players.concat(g.invitees||[]).forEach(p=>{const k=waNum(p.phone);if(k&&!m.has(k))m.set(k,{name:p.name,phone:p.phone})})});return [...m.values()].sort((a,b)=>a.name.localeCompare(b.name))}
 function rsvpOf(g,phone){const r=((ui.rsvp||{})[g.id]||{})[waNum(phone)];return r?(r.s==='yes'?'yes':'no'):'pending'}
 const rsvpLabel=s=>s==='yes'?'Accepted':s==='no'?'Declined':'Pending';
+function rsvpPie(by){const y=by.yes.length,n=by.no.length,p=by.pending.length,tot=y+n+p;if(!tot)return '';
+  const r=32,c=2*Math.PI*r;const arcs=[];let off=0;
+  [[y,'#17703f'],[n,'#b3261e'],[p,'#c9960a']].forEach(([v,col])=>{if(!v)return;const seg=v/tot*c;arcs.push(`<circle cx="40" cy="40" r="${r}" stroke="${col}" stroke-dasharray="${seg} ${c-seg}" stroke-dashoffset="${-off}" />`);off+=seg});
+  return `<div class="rsvp-chart"><svg class="rsvp-donut" viewBox="0 0 80 80">${arcs.join('')}</svg>
+  <div class="rsvp-legend"><div class="rsvp-leg"><span class="rsvp-dot ok"></span>Accepted: ${y}</div><div class="rsvp-leg"><span class="rsvp-dot no"></span>Declined: ${n}</div><div class="rsvp-leg"><span class="rsvp-dot wait"></span>Pending: ${p}</div></div></div>`}
 function reminderText(g,x){return `♠ *NamMane* · Reminder\n\nHi ${x.name}, you're invited to *${g.name}* on ${new Date(g.date+'T12:00').toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'})}${g.time?' at '+(()=>{const [h,m]=g.time.split(':');const d=new Date();d.setHours(+h,+m);return d.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'})})():''}${g.venue?', '+g.venue:''}.\n\nPlease accept or decline in the NamMane app: ${location.origin}/player.html`}
 function invitationsPanel(){const gs=Object.values(S.games).filter(g=>!g.sample&&invList(g).length).sort((a,b)=>{const t=today();const fa=a.date>=t,fb=b.date>=t;if(fa!==fb)return fa?-1:1;return fa?(a.date.localeCompare(b.date)):(b.date.localeCompare(a.date))});
   ui.openInv=ui.openInv||{};
@@ -647,6 +675,7 @@ function invitationsPanel(){const gs=Object.values(S.games).filter(g=>!g.sample&
     return `<details class="gset inv" data-inv="${g.id}" ${open?'open':''}><summary><span class="gs-main"><b>${esc(g.name)}</b><span class="sub">${dLabel(g.date)}${g.venue?' · '+esc(g.venue):''}${up?'':' · past'}</span></span>
       <span class="rcount"><span class="pill ok">${by.yes.length} ✓</span><span class="pill no">${by.no.length} ✗</span><span class="pill wait">${by.pending.length} …</span></span></summary>
       <div class="gs-body">
+        ${rsvpPie(by)}
         <div class="rsv"><h3>Accepted · ${by.yes.length}</h3>${by.yes.length?`<div class="list">${by.yes.map(x=>row(x,'yes')).join('')}</div>`:'<p class="empty">Nobody yet.</p>'}${accNot.length>1?`<button class="btn pri" type="button" data-act="seatAll" data-g="${g.id}">Add all ${accNot.length} accepted to the table</button>`:''}</div>
         <div class="rsv"><h3>Pending · ${by.pending.length}</h3>${by.pending.length?`<div class="list">${by.pending.map(x=>row(x,'pending')).join('')}</div>`:'<p class="empty">Everyone has replied.</p>'}</div>
         <div class="rsv"><h3>Declined · ${by.no.length}</h3>${by.no.length?`<div class="list">${by.no.map(x=>row(x,'no')).join('')}</div>`:'<p class="empty">Nobody declined.</p>'}</div>
@@ -1073,6 +1102,12 @@ document.addEventListener('submit',e=>{e.preventDefault();wake();const f=e.targe
     ui.addingPlayer=false;render();toast(n+' added to players',true);return}
   if(f.id==='hardReset'){doHardReset($('#hrPin').value.trim());return}
   if(f.id==='invAdd'){const n=$('#iaName').value.trim(),ph=$('#iaPhone').value.trim();if(!n){toast('Enter a name',false);return}snap();g.invitees=g.invitees||[];g.invitees.push({id:nid(),name:n,phone:ph});touch(g);render();toast(n+' invited',true);return}
+  if(f.id==='emailInvForm'){const eName=$('#eiName').value.trim(),eAddr=$('#eiAddr').value.trim();if(!eAddr){toast('Enter an email address',false);return}
+    const st=$('#emailStatus');st.innerHTML='<span style="color:var(--warn)">Sending…</span>';
+    (async()=>{try{const r=await api({action:'sendInvite',to:eAddr,playerName:eName||'Friend',gameName:g.name,date:g.date?new Date(g.date+'T12:00').toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'',time:g.time?(()=>{const[h,m]=g.time.split(':');const d=new Date();d.setHours(+h,+m);return d.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'})})():'',venue:g.venue||'',mapUrl:mapsLink(g)||'',gatePass:g.gatePass||'',hostName:ui.adminUser||'Your host'});
+      if(r.emailResult&&r.emailResult.sent){st.innerHTML='<span style="color:var(--up)">✓ Sent to '+esc(eAddr)+'</span>';$('#eiAddr').value='';$('#eiName').value='';toast('Invitation emailed to '+eAddr,true)}
+      else{st.innerHTML='<span style="color:var(--down)">✗ '+(r.emailResult?esc(r.emailResult.error):'Unknown error')+'</span>';toast('Failed to send email',false)}
+    }catch(e){st.innerHTML='<span style="color:var(--down)">✗ '+esc(e.message||'Network error')+'</span>';toast('Failed to send email',false)}})();return}
   if(f.id==='playerLogin'){playerLogin($('#plEmail').value.trim().toLowerCase(),$('#plPass').value);return}
   if(f.id==='adminLogin'){adminLogin($('#alUser').value.trim(),$('#alPass').value);return}
   if(f.id==='setAdmin'){const u=$('#saUser').value.trim(),pw=$('#saPass').value;if(pw.length<8){toast('Use at least 8 characters for the password',false);return}
