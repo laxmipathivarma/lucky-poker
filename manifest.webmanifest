@@ -1,7 +1,7 @@
 {
-  "name": "Lucky Poker",
-  "short_name": "Lucky Poker",
-  "description": "Home game manager: tables, buy-ins, settle up and invites.",
+  "name": "NamMane",
+  "short_name": "NamMane",
+  "description": "Home event manager: tables, buy-ins, settle up and invites.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

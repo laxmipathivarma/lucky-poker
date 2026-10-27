@@ -7,16 +7,16 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Lucky Poker">
-<title>Lucky Poker · Player</title>
+<meta name="apple-mobile-web-app-title" content="NamMane">
+<title>NamMane · Player</title>
 <link rel="manifest" href="player.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
-/* Player app: felt header, ivory card panels, same Royal Fan look as the host app */
+/* Player app: Las Vegas felt, ivory card panels, same NamMane look as the host app */
 :root{
-  --felt:#16603f;--felt-deep:#062418;--bg:#f3ecda;--surface:#fbf7ec;--sunk:#efe7d3;--ink:#1c1813;--muted:#6a5e47;--line:#e2d6b8;
+  --felt:#0d4e30;--felt-deep:#04190f;--bg:#f3ecda;--surface:#fbf7ec;--sunk:#efe7d3;--ink:#1c1813;--muted:#6a5e47;--line:#e2d6b8;
   --gold:#d4a73a;--gold-hi:#f6d67a;--gold-line:rgb(212 167 58 / .55);--accent:#b8281d;--accent-hi:#d8412f;--accent-lo:#8f1a13;--accent-ink:#fff8ea;
   --up:#17703f;--down:#b3261e;--warn:#7f5600;--warn-bg:#fff0cc;--ok-bg:#e2f0e3;--cream:#f4efe2;
   --f-display:"Big Shoulders Display","Arial Narrow",system-ui,sans-serif;--f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -26,7 +26,7 @@
 @media (prefers-color-scheme:dark){:root{--bg:#0c1a13;--surface:#12261c;--sunk:#0e1f17;--ink:#efe7d2;--muted:#a8b6a6;--line:#2b4537;--up:#5fd197;--down:#ff8a7a;--warn:#f0c255;--warn-bg:#33280c;--ok-bg:#163a27;color-scheme:dark}}
 *{box-sizing:border-box}
 html{background:var(--felt-deep)}
-body{margin:0;min-height:100vh;font-family:var(--f-body);font-size:15px;line-height:1.45;color:var(--ink);background:radial-gradient(ellipse 130% 60% at 50% 0%,#1f7a53 0%,var(--felt) 38%,var(--felt-deep) 100%) fixed}
+body{margin:0;min-height:100vh;font-family:var(--f-body);font-size:15px;line-height:1.45;color:var(--ink);background:radial-gradient(ellipse 140% 55% at 50% 0%,#176b45 0%,var(--felt) 32%,#082a1c 72%,var(--felt-deep) 100%) fixed}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:#0a3324}
 button,input{font:inherit;color:inherit}
 .wrap{max-width:860px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
@@ -141,7 +141,7 @@ main{padding-block:16px 110px;gap:18px}
 <header><div class="wrap"><span id="logo" style="display:flex;align-items:center;gap:2px"></span><span class="who" id="who"></span></div></header>
 <main class="wrap" id="app"><section class="panel"><p class="hint">Loading…</p></section></main>
 <script src="config.js"></script>
-<script src="install.js"></script>
+<script src="install.js?v=10"></script>
 <script>
 (function(){
 const SPADE='M0 -30 C8 -18 26 -10 26 4 C26 14 16 19 8 15 C5 13 3 11 2 9 C3 17 6 22 10 26 H-10 C-6 22 -3 17 -2 9 C-3 11 -5 13 -8 15 C-16 19 -26 14 -26 4 C-26 -10 -8 -18 0 -30 Z';
@@ -162,15 +162,15 @@ function fanArt(p,full,cls){
    +card(140,-15,'spade','#16211b','<path d="M60 84 C64 78 70 74 74 70" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".35"/>')
    +card(150,13,'heart','#c3322a','<ellipse cx="58" cy="100" rx="9" ry="5" fill="#fff" opacity=".35" transform="rotate(-35 58 100)"/>')
    +`<use href="#${p}chip" x="330" y="272" color="#25292b"/><use href="#${p}chip" x="334" y="256" color="#25292b"/><use href="#${p}chip" x="328" y="240" color="#c9372c"/><g transform="translate(328 240) scale(.95 .36)"><use href="#${p}spade" fill="#4a1a08" opacity=".7" transform="translate(0 5)"/><use href="#${p}spade" fill="url(#${p}gold)" stroke="#7a4a08" stroke-width="1.4"/></g><use href="#${p}chip" x="108" y="292" color="#16804f"/>`;
-  if(full)body+=`<path d="M18 344 L78 336 L78 394 L18 402 L40 372 Z" fill="#7e140e"/><path d="M422 344 L362 336 L362 394 L422 402 L400 372 Z" fill="#7e140e"/><path d="M62 330 L78 336 L78 345 Z" fill="#4a0b07"/><path d="M378 330 L362 336 L362 345 Z" fill="#4a0b07"/><path d="M62 330 Q220 362 378 330 L378 386 Q220 418 62 386 Z" fill="url(#${p}rib)"/><path d="M62 337 Q220 369 378 337" fill="none" stroke="url(#${p}gold)" stroke-width="2.5"/><path d="M62 379 Q220 411 378 379" fill="none" stroke="url(#${p}gold)" stroke-width="2.5"/><path id="${p}tp" d="M72 371 Q220 403 368 371" fill="none"/><text font-family="Big Shoulders Display, Arial Narrow, sans-serif" font-weight="800" font-size="36" fill="#4a0b07" transform="translate(0 2)"><textPath href="#${p}tp" startOffset="18" textLength="260" lengthAdjust="spacingAndGlyphs">LUCKY POKER</textPath></text><text font-family="Big Shoulders Display, Arial Narrow, sans-serif" font-weight="800" font-size="36" fill="#fbeed2"><textPath href="#${p}tp" startOffset="18" textLength="260" lengthAdjust="spacingAndGlyphs">LUCKY POKER</textPath></text><g fill="#f6cf6a"><path transform="translate(96 72)" d="${SPARK}"/><path transform="translate(370 96) scale(.7)" d="${SPARK}"/><path transform="translate(392 168) scale(.45)" d="${SPARK}"/></g>`;
+  if(full)body+=`<path d="M18 344 L78 336 L78 394 L18 402 L40 372 Z" fill="#7e140e"/><path d="M422 344 L362 336 L362 394 L422 402 L400 372 Z" fill="#7e140e"/><path d="M62 330 L78 336 L78 345 Z" fill="#4a0b07"/><path d="M378 330 L362 336 L362 345 Z" fill="#4a0b07"/><path d="M62 330 Q220 362 378 330 L378 386 Q220 418 62 386 Z" fill="url(#${p}rib)"/><path d="M62 337 Q220 369 378 337" fill="none" stroke="url(#${p}gold)" stroke-width="2.5"/><path d="M62 379 Q220 411 378 379" fill="none" stroke="url(#${p}gold)" stroke-width="2.5"/><path id="${p}tp" d="M72 371 Q220 403 368 371" fill="none"/><text font-family="Big Shoulders Display, Arial Narrow, sans-serif" font-weight="800" font-size="30" fill="#4a0b07" transform="translate(0 2)"><textPath href="#${p}tp" startOffset="10" textLength="290" lengthAdjust="spacingAndGlyphs">NAMMANE</textPath></text><text font-family="Big Shoulders Display, Arial Narrow, sans-serif" font-weight="800" font-size="30" fill="#fbeed2"><textPath href="#${p}tp" startOffset="10" textLength="290" lengthAdjust="spacingAndGlyphs">NAMMANE</textPath></text><g fill="#f6cf6a"><path transform="translate(96 72)" d="${SPARK}"/><path transform="translate(370 96) scale(.7)" d="${SPARK}"/><path transform="translate(392 168) scale(.45)" d="${SPARK}"/><path transform="translate(52 96) scale(.5)" d="${SPARK}"/><path transform="translate(406 60) scale(.6)" d="${SPARK}"/><path transform="translate(130 300) scale(.35)" d="${SPARK}"/><path transform="translate(320 295) scale(.4)" d="${SPARK}"/></g>`;
   const vb=full?'0 0 440 420':'30 50 380 272';
-  const a=full?'role="img" aria-label="Lucky Poker: ace of spades and ace of hearts fanned behind a stack of chips, with a red ribbon"':'aria-hidden="true"';
+  const a=full?'role="img" aria-label="NamMane: ace of spades and ace of hearts fanned behind a stack of chips, with a red ribbon"':'aria-hidden="true"';
   return `<svg class="${cls}" viewBox="${vb}" ${a}>${defs}${body}</svg>`}
 /* Ribbon wordmark used beside the logo in the header */
-function ribbonWord(p){return `<svg class="ribbon" viewBox="0 0 300 80" role="img" aria-label="Lucky Poker"><defs>${goldGrad(p+'gold')}<linearGradient id="${p}rib" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e5503f"/><stop offset=".5" stop-color="#c3322a"/><stop offset="1" stop-color="#8f1a13"/></linearGradient></defs>
+function ribbonWord(p){return `<svg class="ribbon" viewBox="0 0 300 80" role="img" aria-label="NamMane"><defs>${goldGrad(p+'gold')}<linearGradient id="${p}rib" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e5503f"/><stop offset=".5" stop-color="#c3322a"/><stop offset="1" stop-color="#8f1a13"/></linearGradient></defs>
 <path d="M6 22 L40 17 L40 67 L6 72 L20 45 Z" fill="#7e140e"/><path d="M294 22 L260 17 L260 67 L294 72 L280 45 Z" fill="#7e140e"/><path d="M28 12 L40 17 L40 25 Z" fill="#4a0b07"/><path d="M272 12 L260 17 L260 25 Z" fill="#4a0b07"/>
 <path d="M28 12 Q150 26 272 12 L272 60 Q150 74 28 60 Z" fill="url(#${p}rib)"/><path d="M28 17 Q150 31 272 17" fill="none" stroke="url(#${p}gold)" stroke-width="2"/><path d="M28 55 Q150 69 272 55" fill="none" stroke="url(#${p}gold)" stroke-width="2"/>
-<g font-family="Big Shoulders Display, Arial Narrow, sans-serif" font-weight="800" font-size="30"><text x="52" y="51" textLength="196" lengthAdjust="spacingAndGlyphs" fill="#4a0b07">LUCKY POKER</text><text x="52" y="49" textLength="196" lengthAdjust="spacingAndGlyphs" fill="#fbeed2">LUCKY POKER</text></g></svg>`}
+<g font-family="Big Shoulders Display, Arial Narrow, sans-serif" font-weight="800" font-size="24"><text x="38" y="51" textLength="224" lengthAdjust="spacingAndGlyphs" fill="#4a0b07">NAMMANE</text><text x="38" y="49" textLength="224" lengthAdjust="spacingAndGlyphs" fill="#fbeed2">NAMMANE</text></g></svg>`}
 
 const API=window.LP_API;const TK='luckypoker.player.v1';
 const $=s=>document.querySelector(s);
@@ -191,7 +191,7 @@ const msg=()=>st.msg?`<div class="msg ${st.err?'err':'ok'}">${esc(st.msg)}</div>
 
 function render(){$('#who').textContent=st.token&&st.email?st.email:'';const a=$('#app');
   if(!API){a.innerHTML=`<section class="panel"><p class="hint">Player sign-in is being set up. Please check back soon.</p></section>`;return}
-  if(!st.token){a.innerHTML=`<section class="hero">${fanArt('h',true,'')}<p style="margin:0;color:#e8e0c8">Your games, tables and invites from Lucky Poker.</p></section>
+  if(!st.token){a.innerHTML=`<section class="hero">${fanArt('h',true,'')}<p style="margin:0;color:#e8e0c8">Your games, tables and invites from NamMane.</p></section>
   <section class="panel">${authView()}${msg()}</section>${installCard()}`;return}
   const me=st.me;
   if(!me){a.innerHTML=`<section class="panel"><p class="hint">Loading your games…</p>${msg()}</section>`;return}
@@ -207,7 +207,7 @@ function render(){$('#who').textContent=st.token&&st.email?st.email:'';const a=$
   const rsvpPill=g=>g.rsvp==='yes'?'<span class="pill ok">You\'re in ✓</span>':g.rsvp==='no'?'<span class="pill no">Not coming</span>':'<span class="pill wait">Reply needed</span>';
   a.innerHTML=`<section class="hello"><div><span class="k">Welcome back</span><h1>${esc(p.name||'Player')}</h1></div>${newInv?`<a class="badge" href="#invites">${newInv} new invite${newInv>1?'s':''}</a>`:''}</section>
   <section id="invites" class="sec"><h2>Invitations</h2>${inv.length?inv.map(g=>`<article class="invc">
-    <div class="invtop"><span class="k">Game night at home</span>${rsvpPill(g)}</div>
+    <div class="invtop"><span class="k">Where every hand feels like Vegas 🎰</span>${rsvpPill(g)}</div>
     <b class="invname">${esc(g.name)}</b>
     <div class="when"><div><span>${new Date(g.date+'T12:00').toLocaleDateString('en-IN',{weekday:'short'})}</span><b>${new Date(g.date+'T12:00').getDate()}</b><span>${new Date(g.date+'T12:00').toLocaleDateString('en-IN',{month:'short'})}</span></div>
       <ul>${g.time?`<li>⏰ ${t12(g.time)}</li>`:''}${g.venue?`<li>📍 ${esc(g.venue)}</li>`:''}${g.address?`<li class="mut2">${esc(g.address)}</li>`:''}${g.table?`<li>🃏 ${esc(g.table)}</li>`:''}</ul></div>
@@ -227,13 +227,13 @@ function render(){$('#who').textContent=st.token&&st.email?st.email:'';const a=$
   <button class="btn ghost out" type="button" data-a="out">Sign out</button></section>
   ${msg()}
   <nav class="tabbar" aria-label="Sections"><a href="#invites"><span class="ic">✉️</span>Invites${newInv?`<i>${newInv}</i>`:''}</a><a href="#games"><span class="ic">🃏</span>Games</a><a href="#profile"><span class="ic">👤</span>Profile</a></nav>`}
-function installCard(){const I=window.LPInstall;if(!I||I.standalone())return '';return `<div class="getapp"><img src="icon-192.png" alt="" width="52" height="52"><div><b>Get the Lucky Poker app</b><span>Add it to your Home Screen for one-tap access.</span></div><button class="btn pri" type="button" data-a="install">Add</button></div>`}
+function installCard(){const I=window.LPInstall;if(!I||I.standalone())return '';return `<div class="getapp"><img src="icon-192.png" alt="" width="52" height="52"><div><b>Get the NamMane app</b><span>Add it to your Home Screen for one-tap access.</span></div><button class="btn pri" type="button" data-a="install">Add</button></div>`}
 const pwField=(id,label,ac)=>`<label class="f">${label}<span class="pw"><input id="${id}" type="password" autocomplete="${ac}" minlength="8" required><button type="button" class="eye" data-a="eye" data-for="${id}" aria-label="Show password">Show</button></span></label>`;
 function authView(){const busy=st.busy,m=st.mode,s2=st.step;
   if(m==='login')return `<h1>Sign in</h1><p class="hint">Sign in with the email and password you created.</p>
     <form id="fLogin" style="display:flex;flex-direction:column;gap:10px"><label class="f">Email<input id="em" type="email" inputmode="email" autocomplete="email" value="${esc(st.email)}" required></label>${pwField('pw','Password','current-password')}
     <div class="row"><button class="btn pri" type="submit" ${busy?'disabled':''}>${busy?'Signing in…':'Sign in'}</button><button class="btn ghost" type="button" data-a="mode" data-m="reset">Forgot password?</button></div></form>
-    <p class="hint" style="border-top:1px solid var(--line);padding-top:12px">New to Lucky Poker? <button class="btn ghost" type="button" data-a="mode" data-m="signup" style="padding-inline:4px;min-height:auto;color:var(--accent)">Create an account</button></p>`;
+    <p class="hint" style="border-top:1px solid var(--line);padding-top:12px">New to NamMane? <button class="btn ghost" type="button" data-a="mode" data-m="signup" style="padding-inline:4px;min-height:auto;color:var(--accent)">Create an account</button></p>`;
   const title=m==='signup'?'Create your account':'Reset your password';
   const steps=['Email','Code','Password'];const cur=s2==='email'?0:s2==='code'?1:2;
   const bar=`<ol class="steps">${steps.map((x,i)=>`<li class="${i<cur?'done':i===cur?'on':''}"><span>${i+1}</span>${x}</li>`).join('')}</ol>`;

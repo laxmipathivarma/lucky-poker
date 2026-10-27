@@ -7,15 +7,15 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Lucky House Poker">
-<meta name="description" content="Lucky House Poker: home game manager for buy-ins, tables, settle up and invites.">
+<meta name="apple-mobile-web-app-title" content="NamMane">
+<meta name="description" content="NamMane: home event manager for buy-ins, tables, settle up and invites.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-180.png">
 <script src="config.js"></script>
 <script src="install.js?v=10"></script>
 <style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]{display:none!important}</style>
-<title>Lucky House Poker</title>
+<title>NamMane</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
@@ -345,15 +345,15 @@ function fanArt(p,full,cls){
    +card(140,-15,'spade','#16211b','<path d="M60 84 C64 78 70 74 74 70" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".35"/>')
    +card(150,13,'heart','#c3322a','<ellipse cx="58" cy="100" rx="9" ry="5" fill="#fff" opacity=".35" transform="rotate(-35 58 100)"/>')
    +`<use href="#${p}chip" x="330" y="272" color="#25292b"/><use href="#${p}chip" x="334" y="256" color="#25292b"/><use href="#${p}chip" x="328" y="240" color="#c9372c"/><g transform="translate(328 240) scale(.95 .36)"><use href="#${p}spade" fill="#4a1a08" opacity=".7" transform="translate(0 5)"/><use href="#${p}spade" fill="url(#${p}gold)" stroke="#7a4a08" stroke-width="1.4"/></g><use href="#${p}chip" x="108" y="292" color="#16804f"/>`;
-  if(full)body+=`<path d="M18 344 L78 336 L78 394 L18 402 L40 372 Z" fill="#7e140e"/><path d="M422 344 L362 336 L362 394 L422 402 L400 372 Z" fill="#7e140e"/><path d="M62 330 L78 336 L78 345 Z" fill="#4a0b07"/><path d="M378 330 L362 336 L362 345 Z" fill="#4a0b07"/><path d="M62 330 Q220 362 378 330 L378 386 Q220 418 62 386 Z" fill="url(#${p}rib)"/><path d="M62 337 Q220 369 378 337" fill="none" stroke="url(#${p}gold)" stroke-width="2.5"/><path d="M62 379 Q220 411 378 379" fill="none" stroke="url(#${p}gold)" stroke-width="2.5"/><path id="${p}tp" d="M72 371 Q220 403 368 371" fill="none"/><text font-family="Big Shoulders Display, Arial Narrow, sans-serif" font-weight="800" font-size="30" fill="#4a0b07" transform="translate(0 2)"><textPath href="#${p}tp" startOffset="10" textLength="290" lengthAdjust="spacingAndGlyphs">LUCKY HOUSE POKER</textPath></text><text font-family="Big Shoulders Display, Arial Narrow, sans-serif" font-weight="800" font-size="30" fill="#fbeed2"><textPath href="#${p}tp" startOffset="10" textLength="290" lengthAdjust="spacingAndGlyphs">LUCKY HOUSE POKER</textPath></text><g fill="#f6cf6a"><path transform="translate(96 72)" d="${SPARK}"/><path transform="translate(370 96) scale(.7)" d="${SPARK}"/><path transform="translate(392 168) scale(.45)" d="${SPARK}"/><path transform="translate(52 96) scale(.5)" d="${SPARK}"/><path transform="translate(406 60) scale(.6)" d="${SPARK}"/><path transform="translate(130 300) scale(.35)" d="${SPARK}"/><path transform="translate(320 295) scale(.4)" d="${SPARK}"/></g>`;
+  if(full)body+=`<path d="M18 344 L78 336 L78 394 L18 402 L40 372 Z" fill="#7e140e"/><path d="M422 344 L362 336 L362 394 L422 402 L400 372 Z" fill="#7e140e"/><path d="M62 330 L78 336 L78 345 Z" fill="#4a0b07"/><path d="M378 330 L362 336 L362 345 Z" fill="#4a0b07"/><path d="M62 330 Q220 362 378 330 L378 386 Q220 418 62 386 Z" fill="url(#${p}rib)"/><path d="M62 337 Q220 369 378 337" fill="none" stroke="url(#${p}gold)" stroke-width="2.5"/><path d="M62 379 Q220 411 378 379" fill="none" stroke="url(#${p}gold)" stroke-width="2.5"/><path id="${p}tp" d="M72 371 Q220 403 368 371" fill="none"/><text font-family="Big Shoulders Display, Arial Narrow, sans-serif" font-weight="800" font-size="30" fill="#4a0b07" transform="translate(0 2)"><textPath href="#${p}tp" startOffset="10" textLength="290" lengthAdjust="spacingAndGlyphs">NAMMANE</textPath></text><text font-family="Big Shoulders Display, Arial Narrow, sans-serif" font-weight="800" font-size="30" fill="#fbeed2"><textPath href="#${p}tp" startOffset="10" textLength="290" lengthAdjust="spacingAndGlyphs">NAMMANE</textPath></text><g fill="#f6cf6a"><path transform="translate(96 72)" d="${SPARK}"/><path transform="translate(370 96) scale(.7)" d="${SPARK}"/><path transform="translate(392 168) scale(.45)" d="${SPARK}"/><path transform="translate(52 96) scale(.5)" d="${SPARK}"/><path transform="translate(406 60) scale(.6)" d="${SPARK}"/><path transform="translate(130 300) scale(.35)" d="${SPARK}"/><path transform="translate(320 295) scale(.4)" d="${SPARK}"/></g>`;
   const vb=full?'0 0 440 420':'30 50 380 272';
-  const a=full?'role="img" aria-label="Lucky House Poker: ace of spades and ace of hearts fanned behind a stack of chips, with a red ribbon"':'aria-hidden="true"';
+  const a=full?'role="img" aria-label="NamMane: ace of spades and ace of hearts fanned behind a stack of chips, with a red ribbon"':'aria-hidden="true"';
   return `<svg class="${cls}" viewBox="${vb}" ${a}>${defs}${body}</svg>`}
 /* Ribbon wordmark used beside the logo in the header */
-function ribbonWord(p){return `<svg class="ribbon" viewBox="0 0 300 80" role="img" aria-label="Lucky House Poker"><defs>${goldGrad(p+'gold')}<linearGradient id="${p}rib" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e5503f"/><stop offset=".5" stop-color="#c3322a"/><stop offset="1" stop-color="#8f1a13"/></linearGradient></defs>
+function ribbonWord(p){return `<svg class="ribbon" viewBox="0 0 300 80" role="img" aria-label="NamMane"><defs>${goldGrad(p+'gold')}<linearGradient id="${p}rib" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e5503f"/><stop offset=".5" stop-color="#c3322a"/><stop offset="1" stop-color="#8f1a13"/></linearGradient></defs>
 <path d="M6 22 L40 17 L40 67 L6 72 L20 45 Z" fill="#7e140e"/><path d="M294 22 L260 17 L260 67 L294 72 L280 45 Z" fill="#7e140e"/><path d="M28 12 L40 17 L40 25 Z" fill="#4a0b07"/><path d="M272 12 L260 17 L260 25 Z" fill="#4a0b07"/>
 <path d="M28 12 Q150 26 272 12 L272 60 Q150 74 28 60 Z" fill="url(#${p}rib)"/><path d="M28 17 Q150 31 272 17" fill="none" stroke="url(#${p}gold)" stroke-width="2"/><path d="M28 55 Q150 69 272 55" fill="none" stroke="url(#${p}gold)" stroke-width="2"/>
-<g font-family="Big Shoulders Display, Arial Narrow, sans-serif" font-weight="800" font-size="24"><text x="38" y="50" textLength="224" lengthAdjust="spacingAndGlyphs" fill="#4a0b07">LUCKY HOUSE POKER</text><text x="38" y="48" textLength="224" lengthAdjust="spacingAndGlyphs" fill="#fbeed2">LUCKY HOUSE POKER</text></g></svg>`}
+<g font-family="Big Shoulders Display, Arial Narrow, sans-serif" font-weight="800" font-size="24"><text x="38" y="50" textLength="224" lengthAdjust="spacingAndGlyphs" fill="#4a0b07">NAMMANE</text><text x="38" y="48" textLength="224" lengthAdjust="spacingAndGlyphs" fill="#fbeed2">NAMMANE</text></g></svg>`}
 const LS='pokerledger.v1';
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -401,7 +401,7 @@ async function syncNow(manual,where){if(!syncCfg())return false;if(syncing){clea
 async function cloudLoad(){if(!syncCfg())return;try{const j=await api({action:'load'});const changed=mergeRemote(j.data);const pc=JSON.stringify(j.profiles||[])!==JSON.stringify(ui.profiles||[]);ui.profiles=j.profiles||[];const rc=JSON.stringify(j.rsvp||{})!==JSON.stringify(ui.rsvp||{});ui.rsvp=j.rsvp||{};if((pc||rc)&&(tab==='games'||tab==='invite'))render();S.settings.bookUrl=j.sheetUrl;lsSave();if(changed)render();if(pending.size)syncNow(false);else setStatus('cloud')}catch(e){setStatus(navigator.onLine===false?'offline':'local')}}
 function encodeConn(c){return btoa(unescape(encodeURIComponent(c.url+'|'+c.key))).replace(/=+$/,'')}
 function decodeConn(code){try{code=String(code).trim().replace(/^.*#connect=/,'');const t=decodeURIComponent(escape(atob(code)));const [url,key]=t.split('|');if(/^https:\/\/script\.google(usercontent)?\.com\//.test(url)&&key)return{url,key}}catch(e){}return null}
-async function connectWith(code,where){const c=decodeConn(code);if(!c){ui.sheet={busy:null,msg:'That does not look like a Lucky House Poker connection code. Copy the whole code and try again.',err:true,where};render();return}
+async function connectWith(code,where){const c=decodeConn(code);if(!c){ui.sheet={busy:null,msg:'That does not look like a NamMane connection code. Copy the whole code and try again.',err:true,where};render();return}
   S.settings.sync=c;lsSave();Object.values(S.games).forEach(g=>{if(!g.sample)pending.add(g.id)});ui.sheet={busy:'book',msg:'',err:false,where};render();
   try{const j=await api({action:'load'});mergeRemote(j.data);S.settings.bookUrl=j.sheetUrl;lsSave();ui.sheet={busy:null,msg:'',err:false,where};await syncNow(true,where);ui.sheet.msg='Connected. This device now saves to your Google Sheet and shares games with your other devices.';render()}
   catch(e){delete S.settings.sync;lsSave();ui.sheet={busy:null,msg:syncErr(e),err:true,where};render()}}
@@ -453,7 +453,7 @@ function renderTabs(){const g=G();const n=g?g.players.length:0;
   const IC={invite:'<path d="M3 6h18v12H3z"/><path d="M3 7l9 6 9-6"/>',table:'<ellipse cx="12" cy="12" rx="9" ry="6"/><path d="M8 12h8"/>',costs:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',settle:'<path d="M7 7h11l-3-3M17 17H6l3 3"/>',games:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h8M8 17h5"/>'};
   $('#tabs').innerHTML=TABS.map(([k,l])=>`<button role="tab" type="button" data-tab="${k}" aria-selected="${tab===k}"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true">${IC[k]}</svg><span class="tl">${l}</span>${k==='table'&&g?`<span class="ct">${n}</span>`:''}</button>`).join('');
   $('#gname').textContent=g?g.name:'No game open';}
-function installCard(){const I=window.LPInstall;if(!I||I.standalone())return '';return `<div class="getapp"><img src="icon-192.png" alt="" width="52" height="52"><div><b>Get the Lucky House Poker app</b><span>Add it to your Home Screen for one-tap access, like any other app.</span></div><button class="btn pri" type="button" data-act="install">Add</button></div>`}
+function installCard(){const I=window.LPInstall;if(!I||I.standalone())return '';return `<div class="getapp"><img src="icon-192.png" alt="" width="52" height="52"><div><b>Get the NamMane app</b><span>Add it to your Home Screen for one-tap access, like any other app.</span></div><button class="btn pri" type="button" data-act="install">Add</button></div>`}
 function loginView(){const L=ui.login||{};const who=L.who||(()=>{try{return localStorage.getItem('lp.who')||'player'}catch(e){return 'player'}})();const busy=L.busy;
   const err=L.msg?`<div class="lmsg">${esc(L.msg)}</div>`:'';
   return `<div class="login">
@@ -479,7 +479,7 @@ function loginView(){const L=ui.login||{};const who=L.who||(()=>{try{return loca
     </form>`}
   </div>
   <div style="width:100%;max-width:420px">${installCard()}</div>
-  <p class="lfoot">Lucky House Poker · poker.nammane.in</p>
+  <p class="lfoot">NamMane · nammane.in</p>
 </div>`}
 async function playerLogin(email,pass){ui.login={busy:true,who:'player',email};render();
   try{const r=await fetch(window.LP_API,{method:'POST',body:JSON.stringify({action:'pLogin',email,password:pass}),redirect:'follow'});const j=await r.json();
@@ -541,12 +541,12 @@ function waLink(ph,text){const n=waNum(ph);return 'https://wa.me/'+(n||'')+'?tex
 function whenTxt(g){let t=new Date(g.date+'T12:00').toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});if(g.time){const [h,m]=g.time.split(':');const d=new Date();d.setHours(+h,+m);t+=' at '+d.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'})}return t}
 function mapsLink(g){const u=(g.mapsUrl||'').trim();if(u)return u;const q=(g.address||g.venue||'').trim();return q?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q):''}
 function fixUrl(v){v=(v||'').trim();if(!v)return '';if(!/^https?:\/\//i.test(v))v='https://'+v;return v}
-function inviteText(g,p){const L=[`♠ *Lucky House Poker* · Where every hand feels like Vegas 🎰`,'',`Hey${p?` ${p.name}`:''}! You're invited to a friendly evening of cards, snacks and good company.`,'',`*${g.name}*`,`📅 ${new Date(g.date+'T12:00').toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}`];
+function inviteText(g,p){const L=[`♠ *NamMane* · Where every hand feels like Vegas 🎰`,'',`Hey${p?` ${p.name}`:''}! You're invited to a friendly evening of cards, snacks and good company.`,'',`*${g.name}*`,`📅 ${new Date(g.date+'T12:00').toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}`];
   if(g.time){const [h,m]=g.time.split(':');const d=new Date();d.setHours(+h,+m);L.push(`⏰ ${d.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'})}`)}
   if(g.venue)L.push(`📍 ${g.venue}`);if(g.address)L.push(`🏠 ${g.address}`);
   const m=mapsLink(g);if(m)L.push(`🗺️ Google Maps: ${m}`);if(g.gatePass)L.push(`🎟️ Gate pass: ${g.gatePass}`);
-  if(g.notes)L.push('',`📝 ${g.notes}`);L.push('','Accept or decline in the Lucky House Poker app: '+location.origin+'/player.html','See you there!');return L.join('\n')}
-function resultText(g,r){const L=[`♠ Lucky House Poker · ${g.name}`,`Hi ${r.p.name}, here is your result:`,`Bought in ${money(r.b,g)} · Cashed out ${money(r.c,g)}`,`Poker result ${sgn(r.res,g)}${r.share?` · Expense share −${money(r.share,g)}`:''}`,`Net for the night ${sgn(r.final,g)}`];
+  if(g.notes)L.push('',`📝 ${g.notes}`);L.push('','Accept or decline in the NamMane app: '+location.origin+'/player.html','See you there!');return L.join('\n')}
+function resultText(g,r){const L=[`♠ NamMane · ${g.name}`,`Hi ${r.p.name}, here is your result:`,`Bought in ${money(r.b,g)} · Cashed out ${money(r.c,g)}`,`Poker result ${sgn(r.res,g)}${r.share?` · Expense share −${money(r.share,g)}`:''}`,`Net for the night ${sgn(r.final,g)}`];
   liveTransfers(g).forEach(t=>{if(t.from===r.p.id)L.push(`You pay ${pName(g,t.to)} ${money(t.amt,g)}${t.done?' (settled ✅)':''}`);if(t.to===r.p.id)L.push(`${pName(g,t.from)} pays you ${money(t.amt,g)}${t.done?' (settled ✅)':''}`)});return L.join('\n')}
 function invitePanel(g){const up=g.date>=today();return `<section class="panel row" style="justify-content:space-between">
   <div style="flex:1;min-width:200px"><h2>${up?'Invite players':'Invitation'}</h2><p class="hint">Date, venue, Google Maps and gate pass link, ready to send on WhatsApp.</p></div>
@@ -611,7 +611,7 @@ function inviteView(g){const m=mapsLink(g);const withPh=g.players;
 </div>
 <section class="panel">
   <h2>Who's invited</h2>
-  <p class="hint">Tap people to invite them. Invited players see this game in their Lucky House Poker app and can accept or decline. You can follow replies in Games → Invitations.</p>
+  <p class="hint">Tap people to invite them. Invited players see this game in their NamMane app and can accept or decline. You can follow replies in Games → Invitations.</p>
   ${(()=>{const inv=invList(g);const invPh=new Set(inv.map(x=>waNum(x.phone)).filter(Boolean));const known=knownPeople().filter(k=>!invPh.has(waNum(k.phone)));
     const rsvpCounts={yes:0,no:0,pending:0};inv.forEach(x=>{rsvpCounts[rsvpOf(g,x.phone)]++});
     return `${inv.length?`<div style="display:flex;gap:10px;margin-bottom:8px;flex-wrap:wrap"><span class="lbl" style="flex:1">Total: ${inv.length} player${inv.length>1?'s':''}</span>${inv.length>1?`<button class="btn ghost" type="button" data-act="sendAllWa" style="font-size:13px">Send invitation to all</button>`:''}</div>
@@ -637,7 +637,7 @@ function invList(g){const out=[],seen=new Set();(g.invitees||[]).forEach(x=>{con
 function knownPeople(){const m=new Map();Object.values(S.games).forEach(g=>{if(g.sample)return;g.players.concat(g.invitees||[]).forEach(p=>{const k=waNum(p.phone);if(k&&!m.has(k))m.set(k,{name:p.name,phone:p.phone})})});return [...m.values()].sort((a,b)=>a.name.localeCompare(b.name))}
 function rsvpOf(g,phone){const r=((ui.rsvp||{})[g.id]||{})[waNum(phone)];return r?(r.s==='yes'?'yes':'no'):'pending'}
 const rsvpLabel=s=>s==='yes'?'Accepted':s==='no'?'Declined':'Pending';
-function reminderText(g,x){return `♠ *Lucky House Poker* · Reminder\n\nHi ${x.name}, you're invited to *${g.name}* on ${new Date(g.date+'T12:00').toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'})}${g.time?' at '+(()=>{const [h,m]=g.time.split(':');const d=new Date();d.setHours(+h,+m);return d.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'})})():''}${g.venue?', '+g.venue:''}.\n\nPlease accept or decline in the Lucky House Poker app: ${location.origin}/player.html`}
+function reminderText(g,x){return `♠ *NamMane* · Reminder\n\nHi ${x.name}, you're invited to *${g.name}* on ${new Date(g.date+'T12:00').toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'})}${g.time?' at '+(()=>{const [h,m]=g.time.split(':');const d=new Date();d.setHours(+h,+m);return d.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'})})():''}${g.venue?', '+g.venue:''}.\n\nPlease accept or decline in the NamMane app: ${location.origin}/player.html`}
 function invitationsPanel(){const gs=Object.values(S.games).filter(g=>!g.sample&&invList(g).length).sort((a,b)=>{const t=today();const fa=a.date>=t,fb=b.date>=t;if(fa!==fb)return fa?-1:1;return fa?(a.date.localeCompare(b.date)):(b.date.localeCompare(a.date))});
   ui.openInv=ui.openInv||{};
   return `<section class="panel"><h2>Invitations</h2>${gs.length?gs.map(g=>{const L=invList(g);const by={yes:[],no:[],pending:[]};L.forEach(x=>by[rsvpOf(g,x.phone)].push(x));const up=g.date>=today();
@@ -813,7 +813,7 @@ function resultsTable(g,c){const rows=c.rows;const st=!!g.settle;return `<div cl
     <tbody>${rows.length?[...rows].sort((a,b)=>(b.final??-1e12)-(a.final??-1e12)).map(r=>`<tr><td>${esc(r.p.name)}</td>${g.tables.length>1?`<td>${esc((g.tables.find(x=>x.id===r.p.table)||{}).name||'')}</td>`:''}<td class="r num">${money(r.b,g)}</td><td class="r num">${r.c==null?'<span class="mut">playing</span>':money(r.c,g)}</td><td class="r num ${r.res==null?'mut':cls(r.res)}">${r.res==null?'—':sgn(r.res,g)}</td><td class="r num">${r.share?'−'+money(r.share,g):'—'}</td><td class="r num pay ${r.final==null?'mut':cls(r.final)}">${r.final==null?'—':sgn(r.final,g)}</td>${st?`<td>${personStatus(g,r.p.id)}</td>`:''}</tr>`).join(''):'<tr><td colspan="6" class="mut">No players yet.</td></tr>'}</tbody>
     ${rows.length?`<tfoot><tr><td>Total</td>${g.tables.length>1?'<td></td>':''}<td class="r num">${money(c.B,g)}</td><td class="r num">${money(c.C,g)}</td><td></td><td class="r num">${c.pExp?'−'+money(c.pExp,g):'—'}</td><td></td>${st?'<td></td>':''}</tr></tfoot>`:''}
   </table></div>`}
-function remindText(g,t){return `♠ Lucky House Poker · ${g.name}\nHi ${pName(g,t.from)}, please pay ${money(t.amt,g)} to ${pName(g,t.to)} to settle up. Thanks!`}
+function remindText(g,t){return `♠ NamMane · ${g.name}\nHi ${pName(g,t.from)}, please pay ${money(t.amt,g)} to ${pName(g,t.to)} to settle up. Thanks!`}
 function settleSection(g,c){const id=g.id,nc=g.noCash!==false;const P=c.allOut?settleNets(g):null;const stale=g.settle&&P&&netSig(P)!==g.settle.sig;
   const holderSel=`<select id="hold-${id}" data-f="holder" data-g="${id}" style="width:auto;min-width:170px"><option value="" ${!g.holder?'selected':''}>Host, not playing</option>${g.players.map(p=>`<option value="${p.id}" ${g.holder===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select>`;
   let body='';
@@ -866,7 +866,7 @@ function accessPanel(){if(!syncCfg())return '';const ps=(ui.profiles||[]).slice(
   return `<section class="panel">
   <h2>Player access</h2>
   <p class="hint">Players create an account at <b>${esc(link.replace(/^https?:\/\//,''))}</b> with their email and a password, then add their mobile number. Approve a request only when the number belongs to that person; they then see only their own games, tables, upcoming invites and record.</p>
-  <div class="row"><a class="btn" href="${esc(waLink('','♠ Lucky House Poker\nSee your games, tables and upcoming game nights here:\n'+link+'\nSign in with your email, then add the mobile number I have for you.'))}" target="_blank" rel="noopener">Share player link on WhatsApp</a></div>
+  <div class="row"><a class="btn" href="${esc(waLink('','♠ NamMane\nSee your games, tables and upcoming events here:\n'+link+'\nSign in with your email, then add the mobile number I have for you.'))}" target="_blank" rel="noopener">Share player link on WhatsApp</a></div>
   <div class="list">${ps.length?ps.map(p=>`<div class="li"><div class="main"><div class="pay">${esc(p.name||'(no name)')} ${p.status==='approved'?'<span class="tag live">Approved</span>':p.status==='rejected'?'<span class="tag out">Declined</span>':'<span class="tag due">Waiting</span>'}</div><div class="sub">${esc(p.email)} · +${esc(p.phone)} · ${p.matched?'number is on your player list':'number not on your player list yet'}</div></div>
     ${p.status!=='approved'?`<button class="btn pri" type="button" data-act="approveP" data-email="${esc(p.email)}" data-ok="1">Approve</button>`:''}${p.status!=='rejected'?`<button class="btn ghost" type="button" data-act="approveP" data-email="${esc(p.email)}" data-ok="0">${p.status==='approved'?'Remove access':'Decline'}</button>`:''}</div>`).join(''):'<p class="empty">No player sign-ups yet.</p>'}</div>
 </section>`}
@@ -879,7 +879,7 @@ function bookPanel(where){const st=S.settings,busy=ui.sheet.busy,c=syncCfg();
 </section>`;
   return `<section class="panel">
   <h2>Google Sheet</h2>
-  <p class="hint">Every change saves to <b>Lucky House Poker – All games</b> in your Google Drive a few seconds later: a Summary tab, All players, Rake &amp; expenses, and one tab per game. Your other devices pick up the same games.</p>
+  <p class="hint">Every change saves to <b>NamMane – All games</b> in your Google Drive a few seconds later: a Summary tab, All players, Rake &amp; expenses, and one tab per game. Your other devices pick up the same games.</p>
   <div class="row"><button class="btn pri" type="button" data-act="saveBook" ${busy?'disabled':''}>${busy?'Saving…':'Save now'}</button>
   ${st.bookUrl?`<a class="btn" href="${esc(st.bookUrl)}" target="_blank" rel="noopener">Open Google Sheet</a>`:''}${st.bookAt?`<span class="sheetline">Last saved ${when(st.bookAt)}</span>`:''}</div>
   ${sheetMsg(where)}
@@ -898,7 +898,7 @@ function bookPanel(where){const st=S.settings,busy=ui.sheet.busy,c=syncCfg();
 const mlab=m=>m==='upi'?'UPI':m==='credit'?'Credit':'Cash';
 function realGames(){return Object.values(S.games).filter(g=>!g.sample).sort((a,b)=>(a.date||'').localeCompare(b.date||'')||(a.createdAt-b.createdAt))}
 function gameTab(g){const c=calc(g);const pn=id=>id==='bank'?'Bank':(g.players.find(p=>p.id===id)||{}).name||'Removed player';const t=x=>x?when(x):'';
-  const R=[['Lucky House Poker',g.name],['Date',dLabel(g.date)],['Day',new Date(g.date+'T12:00').toLocaleDateString('en-IN',{weekday:'long'})],['Start time',g.time||''],['Venue',g.venue||''],['Address',g.address||''],['Google Maps',mapsLink(g)],['Gate pass',g.gatePass||''],['Note',g.notes||''],['Standard buy-in',g.defBuy],['Currency',g.cur],['Status',g.finished?'Finished':c.allOut&&c.n?'All cashed out':'In progress'],[]];
+  const R=[['NamMane',g.name],['Date',dLabel(g.date)],['Day',new Date(g.date+'T12:00').toLocaleDateString('en-IN',{weekday:'long'})],['Start time',g.time||''],['Venue',g.venue||''],['Address',g.address||''],['Google Maps',mapsLink(g)],['Gate pass',g.gatePass||''],['Note',g.notes||''],['Standard buy-in',g.defBuy],['Currency',g.cur],['Status',g.finished?'Finished':c.allOut&&c.n?'All cashed out':'In progress'],[]];
   R.push(['TOTALS'],['Total buy-ins',r2(c.B)],['Bought in on credit',r2(c.CR)],['Rake collected',r2(c.R)],['Shared expenses',r2(c.pExp)],['Expenses paid from rake',r2(c.rExp)],['Dealer bonus (tips from pots)',r2(c.DBp)],['Dealer bonus (paid from rake)',r2(c.DBr)],['House keeps',r2(c.house)],['Chip check difference',c.allOut?r2(c.C-(c.B-c.R-c.DBp)):'Players still at the table'],[]);
   R.push(['TABLES'],['Table','Dealer','Players','Buy-ins','Cash-outs','Rake','Dealer bonus','Status']);g.tables.forEach(tb=>{const st=tableStats(g,tb.id);R.push([tb.name,dealerName(g,tb),st.ps.length,r2(st.B),r2(st.C),r2(st.rk),r2(st.db),tb.closed?'Closed '+(tb.closedAt?when(tb.closedAt):''):'Open'])});R.push([]);
   R.push(['PLAYERS'],['Player','Phone','Buy-ins','Bought in','On credit','Cash-out','Poker result','Expense share','Paid expenses','Net for the night','Payout','Who pays']);
@@ -921,7 +921,7 @@ function sheetPayload(){const gs=realGames();const used=new Set(['summary','all 
   const tabs=[{key:'summary',name:'Summary',header:true,rows:sum},{key:'players',name:'All players',header:true,rows:all},{key:'costs',name:'Rake & expenses',header:true,rows:ex}];
   gs.slice().reverse().forEach(g=>{const i=gs.indexOf(g);tabs.push({key:g.id,name:names[i],rows:gameTab(g)})});
   return{tabs}}
-function summary(g,c){const L=[];L.push(`♠ Lucky House Poker — ${g.name}`);L.push(whenTxt(g)+(g.venue?` · ${g.venue}`:''));L.push(`Buy-ins ${money(c.B)} · Rake ${money(c.R)}${c.pExp?` · Shared costs ${money(c.pExp)}`:''}`);L.push('');
+function summary(g,c){const L=[];L.push(`♠ NamMane — ${g.name}`);L.push(whenTxt(g)+(g.venue?` · ${g.venue}`:''));L.push(`Buy-ins ${money(c.B)} · Rake ${money(c.R)}${c.pExp?` · Shared costs ${money(c.pExp)}`:''}`);L.push('');
   [...c.rows].sort((a,b)=>(b.final??-1e12)-(a.final??-1e12)).forEach(r=>L.push(`${r.p.name}: in ${money(r.b)}, out ${r.c==null?'—':money(r.c)} → ${r.final==null?'still playing':sgn(r.final)}`));
   const T=liveTransfers(g);if(T.length){L.push('');L.push('Settle up:');T.forEach(t=>L.push(`• ${pName(g,t.from)} pays ${pName(g,t.to)} ${money(t.amt,g)}${t.done?' ✅':''}`))}
   return L.join('\n')}

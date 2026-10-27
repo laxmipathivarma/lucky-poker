@@ -1,6 +1,6 @@
 {
-  "name": "Lucky Poker Player",
-  "short_name": "Lucky Poker",
+  "name": "NamMane Player",
+  "short_name": "NamMane",
   "start_url": "./player.html",
   "scope": "./",
   "display": "standalone",
