@@ -38,8 +38,10 @@ function doPost(e) {
   var a = String(req.action || '');
   try {
     if (a.indexOf('p') === 0) return json_(player_(a, req));
+    if (a === 'adminLogin') return json_(adminLogin_(req));
     var key = PropertiesService.getScriptProperties().getProperty('KEY');
     if (!key || req.key !== key) return json_({ error: 'bad_key' });
+    if (a === 'setAdmin') return json_(setAdmin_(req));
     return json_(admin_(a, req));
   } catch (err) {
     return json_({ error: 'server', message: String(err && err.message || err) });
@@ -95,6 +97,32 @@ function profileList_(data) {
   });
 }
 
+/* ---------------- admin sign-in ---------------- */
+
+function adminLogin_(req) {
+  var props = PropertiesService.getScriptProperties();
+  var user = props.getProperty('ADMIN_USER'), hash = props.getProperty('ADMIN_HASH');
+  if (!user || !hash) return { error: 'not_set' };
+  var cache = CacheService.getScriptCache();
+  var fails = Number(cache.get('AFAIL') || 0);
+  if (fails >= 8) return { error: 'too_many' };
+  if (String(req.user || '').trim() !== user || hash_('admin:' + String(req.pass || '')) !== hash) {
+    cache.put('AFAIL', String(fails + 1), 900);
+    return { error: 'bad_login' };
+  }
+  cache.remove('AFAIL');
+  return { ok: true, key: props.getProperty('KEY') };
+}
+
+function setAdmin_(req) {
+  var user = String(req.user || '').trim(), pass = String(req.pass || '');
+  if (!user || pass.length < 8) return { error: 'bad_request' };
+  var props = PropertiesService.getScriptProperties();
+  props.setProperty('ADMIN_USER', user);
+  props.setProperty('ADMIN_HASH', hash_('admin:' + pass));
+  return { ok: true };
+}
+
 /* ---------------- player ---------------- */
 
 function player_(a, req) {
@@ -105,7 +133,7 @@ function player_(a, req) {
     var cache = CacheService.getScriptCache();
     var sent = Number(cache.get('SENT_' + email) || 0);
     if (sent >= 5) return { error: 'too_many' };
-    var code = String(Math.floor(100000 + Math.random() * 900000));
+    var code = String(Math.floor(1000 + Math.random() * 9000));
     cache.put('OTP_' + email, hash_(code) + '|0', 600);
     cache.put('SENT_' + email, String(sent + 1), 3600);
     MailApp.sendEmail({

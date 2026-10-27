@@ -12,6 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-180.png">
+<script src="config.js"></script>
 <style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>Lucky Poker</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -360,7 +361,32 @@ const TABS=[['invite','Invite'],['table','Table'],['costs','Rake & costs'],['set
 function renderTabs(){const g=G();const n=g?g.players.length:0;
   $('#tabs').innerHTML=TABS.map(([k,l])=>`<button role="tab" type="button" data-tab="${k}" aria-selected="${tab===k}">${l}${k==='table'&&g?`<span class="ct">${n}</span>`:''}</button>`).join('');
   $('#gname').textContent=g?g.name:'No game open';}
+function loginView(){const busy=ui.login&&ui.login.busy;return `<section class="hero">${fanArt('h',true,'fanart')}<div class="wm"><span>Home game manager</span><p>Sign in to run your games, tables, invites and settle up.</p></div></section>
+<div class="two">
+<section class="panel">
+  <h2>Admin sign in</h2>
+  <p class="hint">For the host. Opens the full Lucky Poker app with all games.</p>
+  <form id="adminLogin" style="display:flex;flex-direction:column;gap:10px">
+    ${fld('Username',`<input id="alUser" type="text" inputmode="numeric" autocomplete="username" autocapitalize="off" value="${esc((ui.login&&ui.login.user)||'')}" required>`,1)}
+    ${fld('Password',`<input id="alPass" type="password" autocomplete="current-password" required style="background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;width:100%">`,1)}
+    <div class="row"><button class="btn pri" type="submit" ${busy?'disabled':''}>${busy?'Signing in…':'Sign in'}</button></div>
+  </form>
+  ${ui.login&&ui.login.msg?`<div class="callout warn">${esc(ui.login.msg)}</div>`:''}
+</section>
+<section class="panel">
+  <h2>Player sign in</h2>
+  <p class="hint">For players. Sign in with your email and a 4-digit code to see your tables, upcoming games and your record.</p>
+  <div class="row"><a class="btn pri" href="player.html">Player sign in</a></div>
+</section>
+</div>`}
+async function adminLogin(user,pass){ui.login={busy:true,user};render();
+  try{const r=await fetch(window.LP_API,{method:'POST',body:JSON.stringify({action:'adminLogin',user,pass}),redirect:'follow'});const j=await r.json();
+    if(j.error){ui.login={busy:false,user,msg:j.error==='too_many'?'Too many tries. Wait 15 minutes and try again.':j.error==='not_set'?'Admin sign-in is not set up yet. On a device that is already connected, set it in Games → Admin sign-in.':'Username or password is not right.'};render();return}
+    S.settings.sync={url:window.LP_API,key:j.key};lsSave();ui.login=null;tab='games';render();cloudLoad()}
+  catch(e){ui.login={busy:false,user,msg:'Could not reach the server. Check your internet connection.'};render()}}
 function render(){renderTabs();const g=G();const app=$('#app');
+  if(!syncCfg()&&window.LP_API){$('#tabs').hidden=true;$('#gname').textContent='Sign in';app.innerHTML=loginView();return}
+  $('#tabs').hidden=false;
   if(!g&&tab!=='games'){app.innerHTML=startView();return}
   app.innerHTML=tab==='table'?tableView(g):tab==='invite'?inviteView(g):tab==='costs'?costsView(g):tab==='settle'?settleView(g):gamesView();}
 
@@ -673,10 +699,14 @@ function bookPanel(where){const st=S.settings,busy=ui.sheet.busy,c=syncCfg();
   <div class="row"><button class="btn pri" type="button" data-act="saveBook" ${busy?'disabled':''}>${busy?'Saving…':'Save now'}</button>
   ${st.bookUrl?`<a class="btn" href="${esc(st.bookUrl)}" target="_blank" rel="noopener">Open Google Sheet</a>`:''}${st.bookAt?`<span class="sheetline">Last saved ${when(st.bookAt)}</span>`:''}</div>
   ${sheetMsg(where)}
-  <details class="conn"><summary>Connect another device</summary>
-    <p class="hint">On your iPhone or iPad, open Lucky Poker, then paste this code into the Google Sheet section. Keep it private: anyone with it can see and change your games.</p>
-    <pre class="share" id="connTxt">${esc(encodeConn(c))}</pre>
-    <div class="row"><button class="btn" type="button" data-act="copyConn">Copy code</button><button class="btn ghost danger" type="button" data-act="disconnect">Disconnect this device</button></div>
+  <details class="conn"><summary>Admin sign-in</summary>
+    <p class="hint">Set the username and password you use to sign in on your iPhone, iPad or any browser. Type the password yourself; it is stored only as a secure fingerprint in your Google account, never in this app's code.</p>
+    <form id="setAdmin" style="display:flex;flex-direction:column;gap:10px">
+      ${fld('Username',`<input id="saUser" type="text" inputmode="numeric" autocomplete="username" value="7036363090" required>`,1)}
+      ${fld('New password',`<input id="saPass" type="password" autocomplete="new-password" minlength="8" required style="background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;width:100%">`,1)}
+      <div class="row"><button class="btn pri" type="submit">Save admin sign-in</button></div>
+    </form>
+    <div class="row"><button class="btn ghost danger" type="button" data-act="signOutAdmin">Sign out of admin on this device</button></div>
   </details>
 </section>`}
 
@@ -780,6 +810,7 @@ document.addEventListener('click',e=>{
     case 'saveBook':if(!syncCfg()){ui.sheet={busy:null,msg:'Connect your Google Sheet first.',err:true,where:tab==='games'?'games':'settle'};break}syncNow(true,tab==='games'?'games':'settle');return;
     case 'approveP':{const em=t.dataset.email,okk=t.dataset.ok==='1';(async()=>{try{const j=await api({action:'approve',email:em,ok:okk});ui.profiles=j.profiles||[];toast(okk?'Player approved':'Access removed',false)}catch(e){toast('Could not reach your Google Sheet. Try again.',false)}render()})();return}
     case 'copyConn':{const txt=$('#connTxt').textContent;try{navigator.clipboard.writeText(txt).then(()=>toast('Connection code copied',false),()=>selectEl('#connTxt'))}catch(err){selectEl('#connTxt')}return}
+    case 'signOutAdmin':S={games:{},cur:null,deleted:[],settings:{updatedAt:0}};lsSave();pending.clear();setStatus('local');tab='games';toast('Signed out',false);break;
     case 'disconnect':delete S.settings.sync;lsSave();setStatus('local');toast('This device is no longer saving to the Google Sheet',false);break;
     case 'openG':S.cur=t.dataset.id;ui.table=null;ui.closing=null;lsSave();tab='table';break;
     case 'rmG':{const id=t.dataset.id;delete S.games[id];if(!S.deleted.includes(id))S.deleted.push(id);pending.add(id);if(S.cur===id)S.cur=latestId();ui.confirm=null;touch(null);if(dbReady){setStatus('saving');clearTimeout(timer);timer=setTimeout(flush,300)}break}
@@ -815,6 +846,9 @@ document.addEventListener('change',e=>{const t=e.target,g=G();
 });
 document.addEventListener('input',e=>{const t=e.target;if(t.id==='ngName')t.dataset.dirty='1';if(t.id==='ngDate'&&t.value){const n=$('#ngName');if(n&&!n.dataset.dirty)n.value=autoName(t.value)}});
 document.addEventListener('submit',e=>{e.preventDefault();wake();const f=e.target,g=G();
+  if(f.id==='adminLogin'){adminLogin($('#alUser').value.trim(),$('#alPass').value);return}
+  if(f.id==='setAdmin'){const u=$('#saUser').value.trim(),pw=$('#saPass').value;if(pw.length<8){toast('Use at least 8 characters for the password',false);return}
+    (async()=>{try{await api({action:'setAdmin',user:u,pass:pw});$('#saPass').value='';toast('Admin sign-in saved',false)}catch(e){toast('Could not save. Check your connection and try again.',false)}})();return}
   if(f.dataset.form==='connect'){const w=f.dataset.w;connectWith($('#connCode-'+w).value,w);return}
   if(f.id==='ngForm'){const v=num($('#ngBuy').value),dt=$('#ngDate').value||today(),nm=$('#ngName').value.trim();newGame({name:nm||autoName(dt),autoName:!nm||nm===autoName(dt),time:$('#ngTime').value,venue:$('#ngVenue').value.trim(),date:dt,defBuy:v>0?v:1000,cur:$('#ngCur').value.trim()||'₹'});const ng=G();const prev=Object.values(S.games).filter(x=>x.id!==ng.id&&!x.sample&&(x.address||x.mapsUrl||x.gatePass)).sort((a,b)=>b.createdAt-a.createdAt);const src=prev.find(x=>ng.venue&&x.venue&&x.venue.toLowerCase()===ng.venue.toLowerCase())||(!ng.venue?prev[0]:null);
     if(src){if(!ng.venue)ng.venue=src.venue||'';ng.address=src.address||'';ng.mapsUrl=src.mapsUrl||'';ng.gatePass=src.gatePass||'';ng.notes=src.notes||''}

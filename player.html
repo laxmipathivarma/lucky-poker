@@ -133,10 +133,10 @@ function render(){$('#who').textContent=st.token&&st.email?st.email:'';const a=$
   if(!API){a.innerHTML=`<section class="panel"><p class="hint">Player sign-in is being set up. Please check back soon.</p></section>`;return}
   if(!st.token){a.innerHTML=`<section class="hero">${fanArt('h',true,'')}<p style="margin:0;color:#e8e0c8">Your games, tables and invites from Lucky Poker.</p></section>
   <section class="panel"><h1>Sign in</h1>
-  ${st.step==='email'?`<p class="hint">Enter your email and we'll send you a 6-digit sign-in code.</p>
+  ${st.step==='email'?`<p class="hint">Enter your email and we'll send you a 4-digit sign-in code.</p>
   <form id="fEmail" class="row"><label class="f" style="flex:1;min-width:220px">Email<input id="em" type="email" inputmode="email" autocomplete="email" value="${esc(st.email)}" required></label><button class="btn pri" type="submit" ${st.busy?'disabled':''}>${st.busy?'Sending…':'Send code'}</button></form>`
   :`<p class="hint">We sent a code to <b>${esc(st.email)}</b>. It works for 10 minutes. Check spam if you can't find it.</p>
-  <form id="fCode" class="row"><label class="f" style="flex:1;min-width:160px">Code<input id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required></label><button class="btn pri" type="submit" ${st.busy?'disabled':''}>${st.busy?'Checking…':'Sign in'}</button></form>
+  <form id="fCode" class="row"><label class="f" style="flex:1;min-width:160px">Code<input id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="4" required></label><button class="btn pri" type="submit" ${st.busy?'disabled':''}>${st.busy?'Checking…':'Sign in'}</button></form>
   <div class="row"><button class="btn ghost" type="button" data-a="back">Use a different email</button><button class="btn ghost" type="button" data-a="resend">Send a new code</button></div>`}
   ${msg()}</section>`;return}
   const me=st.me;
