@@ -186,15 +186,17 @@ function authView(){const busy=st.busy,m=st.mode,s2=st.step;
 function profileForm(p){return `<form id="fProf" style="display:flex;flex-direction:column;gap:10px"><label class="f">Your name<input id="pn" autocomplete="name" value="${esc(p&&p.name||'')}" required></label><label class="f">Mobile number<input id="pp" type="tel" inputmode="tel" autocomplete="tel" placeholder="10-digit mobile" value="${esc(p&&p.phone?p.phone.replace(/^91/,''):'')}" required></label><div class="row"><button class="btn pri" type="submit" ${st.busy?'disabled':''}>${st.busy?'Saving…':'Save profile'}</button></div></form>`}
 
 async function load(){try{const j=await api({action:'pMe'});st.me=j.me;st.msg=''}catch(e){if(e.error==='signed_out'){st.token=null;st.me=null;save()}st.msg=errText(e);st.err=true}render()}
-document.addEventListener('submit',async e=>{e.preventDefault();const f=e.target;if(st.busy)return;st.busy=true;st.msg='';render();
+document.addEventListener('submit',async e=>{e.preventDefault();const f=e.target;if(st.busy)return;
+  const V={};f.querySelectorAll('input').forEach(i=>{V[i.id]=i.value});const val=id=>V[id]!=null?V[id]:'';
+  st.busy=true;st.msg='';render();
   try{
-    if(f.id==='fLogin'){st.email=$('#em').value.trim().toLowerCase();const j=await api({action:'pLogin',email:st.email,password:$('#pw').value});st.token=j.token;save();st.busy=false;await load();return}
-    else if(f.id==='fEmail'){st.email=$('#em').value.trim().toLowerCase();await api({action:'pStart',email:st.email,purpose:st.mode});st.step='code';save()}
-    else if(f.id==='fCode'){const j=await api({action:'pVerify',email:st.email,code:$('#code').value,purpose:st.mode});st.setup=j.setup;st.step='pass'}
-    else if(f.id==='fPass'){const a1=$('#np1').value,a2=$('#np2').value;if(a1.length<8)throw{error:'weak_password'};if(a1!==a2){st.busy=false;st.msg='The two passwords do not match.';st.err=true;render();return}
+    if(f.id==='fLogin'){st.email=val('em').trim().toLowerCase();const j=await api({action:'pLogin',email:st.email,password:val('pw')});st.token=j.token;save();st.busy=false;await load();return}
+    else if(f.id==='fEmail'){st.email=val('em').trim().toLowerCase();await api({action:'pStart',email:st.email,purpose:st.mode});st.step='code';save()}
+    else if(f.id==='fCode'){const j=await api({action:'pVerify',email:st.email,code:val('code').trim(),purpose:st.mode});st.setup=j.setup;st.step='pass'}
+    else if(f.id==='fPass'){const a1=val('np1'),a2=val('np2');if(a1.length<8)throw{error:'weak_password'};if(a1!==a2){st.busy=false;st.msg='The two passwords do not match.';st.err=true;render();return}
       await api({action:'pSetPassword',setup:st.setup,password:a1});const was=st.mode;st.mode='login';st.step='email';st.setup=null;st.msg=was==='signup'?'Account created. Taking you to sign in…':'Password changed. Taking you to sign in…';st.err=false;st.busy=false;try{localStorage.setItem('lp.who','player')}catch(e){}render();setTimeout(()=>{location.href='./'},1800);return}
-    else if(f.id==='fProf'){const j=await api({action:'pProfile',name:$('#pn').value.trim(),phone:$('#pp').value});st.me=j.me;st.editing=false;st.msg='Profile saved.';st.err=false}
-  }catch(err){st.msg=errText(err);st.err=true;if(err.error==='signed_out'){st.token=null;save()}if(err.error==='exists'){st.mode='login'}}
+    else if(f.id==='fProf'){const j=await api({action:'pProfile',name:val('pn').trim(),phone:val('pp')});st.me=j.me;st.editing=false;st.msg='Profile saved.';st.err=false}
+  }catch(err){if(V.em&&!st.email)st.email=V.em.trim();st.msg=errText(err);st.err=true;if(err.error==='signed_out'){st.token=null;save()}if(err.error==='exists'){st.mode='login'}}
   st.busy=false;render()});
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;
   if(a==='mode'){st.mode=b.dataset.m;st.step='email';st.setup=null;st.msg='';render()}
