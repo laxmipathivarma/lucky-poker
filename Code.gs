@@ -332,11 +332,9 @@ function isInvited_(g, phone) {
   return (g.players || []).some(function (x) { return normPhone_(x.phone) === phone; });
 }
 
+// Expenses are always covered by the host's rake, so players never carry a share.
 function shareOf_(g) {
-  var n = (g.players || []).length;
-  if (!n) return 0;
-  var shared = (g.expenses || []).filter(function (e) { return e.split === 'players'; }).reduce(function (s, e) { return s + Number(e.amt || 0); }, 0);
-  return shared / n;
+  return 0;
 }
 
 function findPlayerName_(data, phone) {

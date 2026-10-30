@@ -438,8 +438,8 @@ function calc(g){norm(g);
   const ps=g.players,n=ps.length;
   const B=ps.reduce((a,p)=>a+sumB(p),0), CR=ps.reduce((a,p)=>a+credB(p),0);
   const R=g.rake.reduce((a,x)=>a+x.amt,0);
-  const pExp=g.expenses.filter(e=>e.split==='players').reduce((a,e)=>a+e.amt,0);
-  const rExp=g.expenses.filter(e=>e.split==='rake').reduce((a,e)=>a+e.amt,0);
+  const pExp=0; // expenses always come from the host's rake; players never pay a share
+  const rExp=g.expenses.reduce((a,e)=>a+e.amt,0);
   const bankPaidExp=g.expenses.filter(e=>e.by==='bank').reduce((a,e)=>a+e.amt,0);
   const share=n?pExp/n:0;
   const outs=ps.filter(p=>p.out!=null), C=outs.reduce((a,p)=>a+p.out,0);
@@ -789,15 +789,14 @@ function costsView(g){const c=calc(g);
 </section>
 <section class="panel">
   <h2>Game expenses</h2>
-  <p class="hint">Food, drinks, cards, venue, dealer tip. Choose whether players share the cost equally or the house pays it out of the rake.</p>
+  <p class="hint">Food, drinks, cards, venue, dealer tip. Every expense is paid from the host's rake, so players never pay a share.</p>
   <form id="expForm" style="display:flex;flex-direction:column;gap:8px">
     <div class="row"><input id="exLabel" class="grow" type="text" placeholder="What for, e.g. Dinner" aria-label="Expense description"><input id="exAmt" class="amt num" type="number" inputmode="decimal" min="1" placeholder="Amount" aria-label="Expense amount"></div>
     <div class="row"><span class="lbl">Paid by</span><select id="exBy" style="width:auto;flex:1;min-width:140px"><option value="bank">Bank (cash box)</option>${g.players.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select></div>
-    <div class="row"><span class="lbl">Cost covered by</span>
-      <span class="seg" role="group"><button type="button" data-act="exSplit" data-v="players" aria-pressed="${(ui.exSplit||'players')==='players'}">Split among players</button><button type="button" data-act="exSplit" data-v="rake" aria-pressed="${ui.exSplit==='rake'}">Paid from rake</button></span>
+    <div class="row"><span class="lbl">Cost covered by</span><span class="hint" style="margin:0">Host's rake (always)</span>
       <button class="btn pri" type="submit">Add expense</button></div>
   </form>
-  <div class="list">${g.expenses.length?g.expenses.map(e=>`<div class="li"><span class="num pay">${money(e.amt)}</span><div class="main"><div>${esc(e.label)}</div><div class="sub">Paid by ${esc(by(e))} · ${e.split==='rake'?'from rake':'split among players'}</div></div><button class="btn ghost" type="button" data-act="rmExp" data-id="${e.id}" aria-label="Remove expense">×</button></div>`).join(''):'<p class="empty">No expenses yet.</p>'}</div>
+  <div class="list">${g.expenses.length?g.expenses.map(e=>`<div class="li"><span class="num pay">${money(e.amt)}</span><div class="main"><div>${esc(e.label)}</div><div class="sub">Paid by ${esc(by(e))} · covered by host's rake</div></div><button class="btn ghost" type="button" data-act="rmExp" data-id="${e.id}" aria-label="Remove expense">×</button></div>`).join(''):'<p class="empty">No expenses yet.</p>'}</div>
   <div class="row" style="justify-content:space-between;border-top:1px solid var(--line);padding-top:10px"><span class="lbl">Each player's share</span><span class="num pay">${c.n?money(c.share):'—'}</span></div>
 </section>
 </div>
@@ -937,7 +936,7 @@ function gameTab(g){const c=calc(g);const pn=id=>id==='bank'?'Bank':(g.players.f
   R.push([],['CASH-OUTS'],['Time','Player','Amount']);g.players.forEach(p=>{if(p.out!=null)R.push([t(p.outT),p.name,p.out])});
   R.push([],['RAKE'],['Time','Note','Amount']);g.rake.forEach(r=>R.push([t(r.t),r.note||'Rake',r.amt]));
   R.push([],['DEALER BONUS'],['Time','Table','Dealer','Amount','Source']);g.dealer.forEach(d=>{const tb=g.tables.find(x=>x.id===d.table)||g.tables[0];R.push([t(d.t),tb.name,dealerName(g,tb),d.amt,d.src==='rake'?'Paid from rake':'Tips from pots'])});
-  R.push([],['EXPENSES'],['Time','Item','Amount','Paid by','Covered by']);g.expenses.forEach(e=>R.push([t(e.t),e.label,e.amt,pn(e.by),e.split==='rake'?'Rake':'Players equally']));
+  R.push([],['EXPENSES'],['Time','Item','Amount','Paid by','Covered by']);g.expenses.forEach(e=>R.push([t(e.t),e.label,e.amt,pn(e.by),'Host rake']));
   return R}
 function tabName(g,used){const d=dLabel(g.date);const extra=g.name===autoName(g.date)?'':' '+g.name;let b=(d+extra).replace(/[\[\]:*?\/\\]/g,' ').replace(/\s+/g,' ').trim().slice(0,28)||'Game';let n=b,i=2;while(used.has(n.toLowerCase()))n=b.slice(0,25)+' '+(i++);used.add(n.toLowerCase());return n}
 function sheetPayload(){const gs=realGames();const used=new Set(['summary','all players','rake & expenses']);const names=gs.map(g=>tabName(g,used));
@@ -946,7 +945,7 @@ function sheetPayload(){const gs=realGames();const used=new Set(['summary','all 
   const all=[['Date','Game','Table','Player','Phone','Bought in','On credit','Cash-out','Poker result','Expense share','Net for the night']];
   gs.forEach(g=>calc(g).rows.forEach(r=>all.push([dLabel(g.date),g.name,(g.tables.find(x=>x.id===r.p.table)||{}).name||'',r.p.name,r.p.phone||'',r2(r.b),r2(r.cr),r.c==null?'':r2(r.c),r.res==null?'':r2(r.res),r2(r.share),r.final==null?'':r2(r.final)])));
   const ex=[['Date','Game','Type','Item','Amount','Paid by','Covered by']];
-  gs.forEach(g=>{const pn=id=>id==='bank'?'Bank':(g.players.find(p=>p.id===id)||{}).name||'Removed player';g.rake.forEach(r=>ex.push([dLabel(g.date),g.name,'Rake',r.note||'Rake',r.amt,'','House']));norm(g);g.dealer.forEach(d=>{const tb=g.tables.find(x=>x.id===d.table)||g.tables[0];ex.push([dLabel(g.date),g.name,'Dealer bonus',tb.name+' · '+dealerName(g,tb),d.amt,d.src==='rake'?'House':'Pots',d.src==='rake'?'Rake':'Tips from pots'])});g.expenses.forEach(e=>ex.push([dLabel(g.date),g.name,'Expense',e.label,e.amt,pn(e.by),e.split==='rake'?'Rake':'Players equally']))});
+  gs.forEach(g=>{const pn=id=>id==='bank'?'Bank':(g.players.find(p=>p.id===id)||{}).name||'Removed player';g.rake.forEach(r=>ex.push([dLabel(g.date),g.name,'Rake',r.note||'Rake',r.amt,'','House']));norm(g);g.dealer.forEach(d=>{const tb=g.tables.find(x=>x.id===d.table)||g.tables[0];ex.push([dLabel(g.date),g.name,'Dealer bonus',tb.name+' · '+dealerName(g,tb),d.amt,d.src==='rake'?'House':'Pots',d.src==='rake'?'Rake':'Tips from pots'])});g.expenses.forEach(e=>ex.push([dLabel(g.date),g.name,'Expense',e.label,e.amt,pn(e.by),'Host rake']))});
   const tabs=[{key:'summary',name:'Summary',header:true,rows:sum},{key:'players',name:'All players',header:true,rows:all},{key:'costs',name:'Rake & expenses',header:true,rows:ex}];
   gs.slice().reverse().forEach(g=>{const i=gs.indexOf(g);tabs.push({key:g.id,name:names[i],rows:gameTab(g)})});
   return{tabs}}
@@ -1015,7 +1014,6 @@ document.addEventListener('click',e=>{
     case 'rmP':{snap();const p=g.players.find(x=>x.id===pid);g.players=g.players.filter(x=>x.id!==pid);g.expenses.forEach(x=>{if(x.by===pid)x.by='bank'});ui.confirm=null;touch(g);toast(`${p?p.name:'Player'} removed`,true);break}
     case 'quickRake':snap();g.rake.push({id:nid(),amt:+t.dataset.v,note:'',table:($('#rkTable')&&$('#rkTable').value)||curTable(g).id,t:Date.now()});touch(g);toast(`Rake ${money(+t.dataset.v)} added`,true);break;
     case 'rmRake':snap();g.rake=g.rake.filter(x=>x.id!==t.dataset.id);touch(g);toast('Rake entry removed',true);break;
-    case 'exSplit':ui.exSplit=t.dataset.v;{const f=['exLabel','exAmt','exBy'].map(i=>$('#'+i)?.value);render();['exLabel','exAmt','exBy'].forEach((i,k)=>{if($('#'+i)&&f[k]!=null)$('#'+i).value=f[k]})}return;
     case 'rmExp':snap();g.expenses=g.expenses.filter(x=>x.id!==t.dataset.id);touch(g);toast('Expense removed',true);break;
     case 'previewWa':showInvPreview(waLink('',inviteText(g)),g);return;
     case 'sendOneWa':showInvPreview(waLink(t.dataset.ph,inviteText(g,{name:t.dataset.n})),g,t.dataset.n);return;
@@ -1127,7 +1125,7 @@ document.addEventListener('submit',e=>{e.preventDefault();wake();const f=e.targe
     snap();st.ps.forEach(p=>{if(p.out!==vals[p.id]){p.out=vals[p.id];p.outT=Date.now()}});tb.closed=true;tb.closedAt=Date.now();ui.closing=null;touch(g);render();window.scrollTo(0,0);toast(tb.name+' closed',true);return}
   if(f.dataset.form==='out'){const pid=f.dataset.p,v=num($('#co-'+pid).value);if(!(v>=0)){toast('Enter the chips this player cashed out (0 if they busted)',false);return}snap();const p=g.players.find(x=>x.id===pid);p.out=v;p.outT=Date.now();ui.editOut=null;touch(g);render();toast(`${p.name} cashed out ${money(v)}`,true);return}
   if(f.id==='rakeForm'){const v=num($('#rkAmt').value);if(!(v>0)){toast('Enter a rake amount above zero',false);return}snap();g.rake.push({id:nid(),amt:v,note:$('#rkNote').value.trim(),table:($('#rkTable')&&$('#rkTable').value)||curTable(g).id,t:Date.now()});touch(g);render();toast(`Rake ${money(v)} added`,true);return}
-  if(f.id==='expForm'){const v=num($('#exAmt').value),l=$('#exLabel').value.trim();if(!(v>0)||!l){toast('Add what the expense was for and its amount',false);return}snap();g.expenses.push({id:nid(),label:l,amt:v,by:$('#exBy').value,split:ui.exSplit||'players',t:Date.now()});touch(g);render();toast(`${l} added`,true);return}
+  if(f.id==='expForm'){const v=num($('#exAmt').value),l=$('#exLabel').value.trim();if(!(v>0)||!l){toast('Add what the expense was for and its amount',false);return}snap();g.expenses.push({id:nid(),label:l,amt:v,by:$('#exBy').value,split:'rake',t:Date.now()});touch(g);render();toast(`${l} added`,true);return}
 });
 
 /* keep the screen awake during a game */
@@ -1138,7 +1136,7 @@ function sample(){const g=newGame({name:'Sample game',defBuy:2000,sample:true});
   const mk=(name,buys,out)=>({id:'p'+nid(),name,buyins:buys.map((b,i)=>({id:nid(),amt:b[0],m:b[1],t:t0+i*2400e3+Math.random()*600e3})),out,outT:out==null?null:Date.now()-600e3});
   g.players=[mk('Arjun (example)',[[2000,'cash'],[2000,'cash']],6900),mk('Kabir (example)',[[2000,'upi']],0),mk('Meera (example)',[[2000,'cash']],3600),mk('Rohan (example)',[[2000,'credit'],[1000,'credit']],1100),mk('Zoya (example)',[[2000,'cash']],null)];
   g.rake=[{id:nid(),amt:200,note:'Hand 9',t:t0+3600e3},{id:nid(),amt:200,note:'Hand 21',t:t0+7200e3}];
-  g.expenses=[{id:nid(),label:'Dinner',amt:1500,by:g.players[2].id,split:'players',t:t0},{id:nid(),label:'New deck of cards',amt:400,by:'bank',split:'rake',t:t0}];
+  g.expenses=[{id:nid(),label:'Dinner',amt:1500,by:g.players[2].id,split:'rake',t:t0},{id:nid(),label:'New deck of cards',amt:400,by:'bank',split:'rake',t:t0}];
   touch(g)}
 
 /* ---------- boot ---------- */
